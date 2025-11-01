@@ -38,7 +38,7 @@ app/settings/migrations/*
 !app/*/migrations/__init__.py
 
 # Database
-data/
+deploy/db_data
 *.db
 
 # IDE - персональные настройки (НЕ конфиги проекта!)

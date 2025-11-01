@@ -1,6 +1,5 @@
 import logging
 
-from landing.models import BlockType
 from settings.models import SocialMedia
 
 from .models import Landing
@@ -27,9 +26,9 @@ def global_context(request):
             ).first()
             or {}
         )
-        anchors = BlockType.objects.all()
-        anchor_count = anchors.count()
-        logger.debug(f"Loaded {anchor_count} anchors")
+        # anchors = BlockType.objects.all()
+        # anchor_count = anchors.count()
+        # logger.debug(f"Loaded {anchor_count} anchors")
 
         social_media = SocialMedia.objects.all()
         social_count = social_media.count()
@@ -37,11 +36,11 @@ def global_context(request):
 
     except Exception as e:
         logger.error(f"Error loading context data: {e}", exc_info=True)
-        anchors = BlockType.objects.none()
+        #anchors = BlockType.objects.none()
         social_media = SocialMedia.objects.none()
 
     context = {
-        "anchors": anchors,
+        #"anchors": anchors,
         "title": settings.get("title", ""),
         "about": settings.get("desc", ""),
         "footer": settings.get("footer", ""),

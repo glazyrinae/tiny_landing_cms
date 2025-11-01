@@ -1,0 +1,27 @@
+<section id="{{ content.slug }}" class="py-5">
+    <div class="container">
+        <h2 class="section-title text-center text-white-custom">{{ content.title }}</h2>
+        <p class="text-center mb-5 text-white-custom">{{ content.desc }}</p>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+            {% for feature in content.features.all %}
+                <div class="card trainer-card h-100">
+                    <div class="position-relative overflow-hidden">
+                        <img src="{{MEDIA_URL}}{{ feature.src }}" class="card-img-top trainer-image" alt="{{ feature.alt }}">
+                        <div class="trainer-social">
+                            <a href="#" class="social-icon text-white-custom"><i class="fab fa-instagram"></i></a>
+                            <a href="#" class="social-icon text-white-custom"><i class="fab fa-vk"></i></a>
+                        </div>
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="card-title text-white-custom">{{ feature.name }}</h5>
+                        <p class="trainer-specialty">{{ feature.status }}</p>
+                        <p class="card-text text-white-custom">Специализация: {{ feature.desc }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>

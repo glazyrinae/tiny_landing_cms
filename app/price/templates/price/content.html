@@ -1,0 +1,31 @@
+<section id="{{ content.slug }}" class="py-5 bg-dark-custom">
+    <div class="container">
+        <h2 class="section-title text-center text-white-custom">{{ content.title }}</h2>
+        <p class="text-center mb-5 text-white-custom">{{ content.desc }}</p>
+        
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-6 col-lg-4">
+            {% for feature in content.features.all %}
+                <div class="card price-card h-100 text-center p-4">
+                    <div class="card-body">
+                        <h4 class="card-title text-white-custom">{{feature.title}}</h4>
+                        <h2 class="text-primary-custom">{{feature.price}} ₽</h2>
+                        <p class="price-period">{{feature.period}}</p>
+                        <ul class="list-unstyled my-4">
+                            {{feature.services|safe}}
+                        </ul>
+                        <button class="btn btn-outline-primary-custom w-100" data-bs-toggle="modal" data-bs-target="#callbackModal">Выбрать</button>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Кнопка заказа звонка в конце секции цен -->
+        <div class="text-center mt-5">
+            <button class="btn btn-primary-custom btn-lg big-call-button" data-bs-toggle="modal" data-bs-target="#callbackModal">
+                <i class="fas fa-phone-alt me-2"></i>ПОЛУЧИТЬ КОНСУЛЬТАЦИЮ
+            </button>
+        </div>
+    </div>
+</section>

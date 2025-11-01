@@ -1,0 +1,31 @@
+{% load static %}
+<section id="{{ content.slug }}" class="py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <h2 class="section-title text-white-custom">{{ content.title }}</h2>
+                <p class="mb-4 text-white-custom">{{ content.desc }}</p>
+                <ul class="list-unstyled">
+                    {% for feature in content.features.all %}
+                        <li class="mb-2 text-white-custom"><i class="fas fa-check text-primary-custom me-2"></i> {{feature.title}}</li>
+                    {% endfor %}
+                </ul>
+                <!-- Кнопка заказа звонка в секции "О нас" -->
+                <!-- <div class="mt-4">
+                    <button class="btn btn-primary-custom btn-lg" data-bs-toggle="modal" data-bs-target="#callbackModal">
+                        <i class="fas fa-phone me-2"></i>Получить консультацию
+                    </button>
+                </div> -->
+            </div>
+            <div class="col-lg-6">
+                <div class="row g-3">
+                {% for image in content.images.all %}
+                    <div class="col-6">
+                        <img src="{{MEDIA_URL}}{{ image.src }}" class="img-fluid rounded" alt="{{image.alt}}">
+                    </div>
+                {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

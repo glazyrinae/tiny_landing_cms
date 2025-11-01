@@ -1,15 +1,32 @@
-<ul class="navbar-nav flex-column text-start">
-    <li class="nav-item">
-        <a class="nav-link {% if active == 'home' %}active{% endif %}" href="{% url 'blog:post_list' %}">
-            <i class="fas fa-home fa-fw me-2"></i>В начало<span class="sr-only">(current)</span>
-        </a>
-    </li>
-{% for item in categories %}                
-    <li class="nav-item">
-        <a class="nav-link {% if active == item.url_path %}active{% endif %}" href="{% url 'blog:category' category=item.url_path %}">
-            <i class="fas fa-bookmark fa-fw me-2"></i>
-            {{item.title}}
-        </a>
-    </li>
-{% endfor %}
-</ul>
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+        <div class="logo-container">
+            <img src="media/logo.jpg" class="logo-image" alt="Физрук">
+            <a class="navbar-brand fw-bold fs-3" href="#">
+                <span class="text-primary-custom">ФИЗРУК</span>
+            </a>
+        </div>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#about">О нас</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#services">Услуги</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#trainers">Тренеры</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#pricing">Цены</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#contact">Контакты</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

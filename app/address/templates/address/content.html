@@ -1,0 +1,38 @@
+<section id="{{ content.slug }}" class="py-5">
+    <div class="container">
+        <h2 class="section-title text-center text-white-custom">Контакты</h2>
+        <p class="text-center mb-5 text-white-custom">Приходите к нам на тренировку или свяжитесь с нами</p>
+        
+        <div class="row g-5">
+            <div class="col-lg-6">
+                <div class="contact-info h-100">
+                    <h4 class="mb-4 text-white-custom">Наши контакты</h4>
+                    <div class="mb-4">
+                        <h5 class="text-primary-custom">Адрес</h5>
+                        <p class="text-white-custom">{{ content.address}}</p>
+                    </div>
+                    <div class="mb-4">
+                        <h5 class="text-primary-custom">Телефон</h5>
+                        <p class="text-white-custom"><a href="tel:{{ content.phone }}" class="text-decoration-none text-white-custom">{{ content.phone }}</a></p>
+                    </div>
+                    <div class="mb-4">
+                        <h5 class="text-primary-custom">Режим работы</h5>
+                        <p class="text-white-custom">{{ content.hours_work|safe }}</p>
+                    </div>
+                    <div>
+                        <h5 class="text-primary-custom">Социальные сети</h5>
+                        <div class="d-flex gap-3 mt-3">
+                        {% for feature in content.features.all %}
+                            <a href="{{feature.url}}" class="social-icon text-white-custom"><i class="{{feature.icon}}"></i></a>
+                        {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <iframe src="https://yandex.ru/map-widget/v1/?um=constructor%3A9c18b01d6215ea68a507ab6ea1919be6aa8ae3f1c83f60a569e2faca2f0b4817&amp;source=constructor" width="719" height="513" frameborder="0"></iframe>
+            </div>
+        </div>
+    </div>
+</section>

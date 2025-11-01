@@ -1,0 +1,22 @@
+<section id="{{ content.slug }}" class="py-5 bg-dark-custom">
+    <div class="container">
+        <h2 class="section-title text-center text-white-custom">{{ content.title }}</h2>
+        <p class="text-center mb-5 text-white-custom">{{ content.desc }}</p>
+        
+        <div class="row g-4">
+            {% for feature in content.features.all %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card service-card h-100 p-4">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="{{feature.icon}}"></i>
+                        </div>
+                        <h4 class="card-title text-white-custom">{{feature.title}}</h4>
+                        <p class="card-text text-white-custom">{{feature.desc}}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>

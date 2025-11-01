@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django import forms
 
-from .models import BlogSettings, SocialMedia
+from .models import Landing, SocialMedia
 
 # Constants
 FORM_ATTRS = {
@@ -18,17 +18,17 @@ class SocialMediaInline(admin.StackedInline):
     fields = ("title", "url_link")
 
 
-@admin.register(BlogSettings)
-class BlogSettingsAdmin(admin.ModelAdmin):
+@admin.register(Landing)
+class LandingAdmin(admin.ModelAdmin):
     """Admin interface for blog settings."""
 
     inlines = [SocialMediaInline]
-    list_display = ["blog_title", "blog_desc", "blog_footer", "avatar"]
-    search_fields = ["blog_title", "blog_desc"]
+    list_display = ["title", "desc", "footer", "avatar"]
+    search_fields = ["title", "desc"]
 
     def has_add_permission(self, request):
         """Allow only one instance of blog settings."""
-        return BlogSettings.objects.count() == 0
+        return Landing.objects.count() == 0
 
     def has_delete_permission(self, request, obj=None):
         """Prevent deletion of blog settings."""
@@ -39,8 +39,8 @@ class BlogSettingsAdmin(admin.ModelAdmin):
         form = super().get_form(request, obj, **kwargs)
 
         # Customize blog description field
-        if "blog_desc" in form.base_fields:
-            form.base_fields["blog_desc"].widget = forms.Textarea(
+        if "desc" in form.base_fields:
+            form.base_fields["desc"].widget = forms.Textarea(
                 attrs=FORM_ATTRS
             )
 

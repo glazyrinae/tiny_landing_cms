@@ -1,0 +1,27 @@
+<section class="{{ content.slug }}" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{{ MEDIA_URL }}{{ content.background }}') center/cover no-repeat; padding: 150px 0 100px;" >
+    <div class="container">
+        <div class="hero-content">
+            <h1 class="display-3 fw-bold mb-4 text-white-custom">ФИТНЕС-КЛУБ <span class="text-primary-custom">{{ content.title }}</span></h1>
+            <p class="lead mb-5 text-white-custom fs-4">{{ content.desc }}</p>
+            
+            <!-- Большая кнопка заказа обратного звонка -->
+            <div class="mb-5">
+                <button class="btn btn-primary-custom big-call-button pulse-animation" data-bs-toggle="modal" data-bs-target="#callbackModal">
+                    <i class="fas fa-phone-alt fa-lg"></i>
+                    ЗАКАЗАТЬ ОБРАТНЫЙ ЗВОНОК
+                </button>
+            </div>
+            
+            <div class="benefits-grid">
+            {% for marker in content.markers.all %}
+                <div class="benefit-item">
+                    <div class="benefit-icon floating">
+                        <i class="{{ marker.icon }}"></i>
+                    </div>
+                    <h5 class="text-white-custom">{{ marker.title }}</h5>
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>

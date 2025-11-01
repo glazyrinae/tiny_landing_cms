@@ -1,0 +1,28 @@
+<!-- Модальное окно обратного звонка -->
+<div class="modal fade" id="callbackModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-white-custom">Заказать обратный звонок</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="callbackForm">
+                    <div class="mb-3">
+                        <label for="name" class="form-label text-white-custom">Ваше имя</label>
+                        <input type="text" class="form-control" id="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone" class="form-label text-white-custom">Телефон</label>
+                        <input type="tel" class="form-control" id="phone" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="message" class="form-label text-white-custom">Сообщение (необязательно)</label>
+                        <textarea class="form-control" id="message" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary-custom w-100 py-2 fw-bold">Заказать звонок</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
