@@ -34,13 +34,3 @@ class PriceSectionFeatures(models.Model):
     services = models.TextField(max_length=10000, blank=True, verbose_name="Список услуг")
     class Meta:
         db_table = 'section_price_features'
-
-# class PriceSectionFeaturesService(models.Model):
-#     title = models.CharField(max_length=100, blank=True,  verbose_name="Описание")
-#     is_active = models.BooleanField(default=True, verbose_name="Видимость")
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     updated_at = models.DateTimeField(auto_now=True)
-#     section = models.ForeignKey(PriceSectionFeatures, on_delete=models.CASCADE, related_name="services")
-    
-#     class Meta:
-#         db_table = 'section_price_features_services'

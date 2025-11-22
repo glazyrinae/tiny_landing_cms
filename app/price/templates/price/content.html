@@ -4,9 +4,12 @@
         <p class="text-center mb-5 text-white-custom">{{ content.desc }}</p>
         
         <div class="row g-4 justify-content-center">
-            <div class="col-md-6 col-lg-4">
             {% for feature in content.features.all %}
-                <div class="card price-card h-100 text-center p-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="card price-card h-100 text-center p-4 {% if feature.is_recommended %}featured{% endif %}">
+                {% if feature.is_recommended %}
+                    <div class="price-badge">Популярный</div>
+                {% endif %}
                     <div class="card-body">
                         <h4 class="card-title text-white-custom">{{feature.title}}</h4>
                         <h2 class="text-primary-custom">{{feature.price}} ₽</h2>
@@ -17,8 +20,8 @@
                         <button class="btn btn-outline-primary-custom w-100" data-bs-toggle="modal" data-bs-target="#callbackModal">Выбрать</button>
                     </div>
                 </div>
-            {% endfor %}
             </div>
+            {% endfor %}
         </div>
         
         <!-- Кнопка заказа звонка в конце секции цен -->

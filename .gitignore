@@ -35,6 +35,12 @@ media/*
 # Migrations
 app/blog/migrations/*
 app/settings/migrations/*
+app/about/migrations/*
+app/address/migrations/*
+app/command/migrations/*
+app/hero/migrations/*
+app/price/migrations/*
+app/service/migrations/*
 !app/*/migrations/__init__.py
 
 # Database

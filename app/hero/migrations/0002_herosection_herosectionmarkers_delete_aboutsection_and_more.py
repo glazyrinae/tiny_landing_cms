@@ -70,7 +70,7 @@ class Migration(migrations.Migration):
                 (
                     "icon",
                     models.CharField(
-                        blank=True, max_length=100, verbose_name="названия иноки"
+                        blank=True, max_length=100, verbose_name="названия иконки"
                     ),
                 ),
                 (

@@ -364,3 +364,61 @@ footer {
     color: #888;
     font-size: 0.9rem;
 }
+
+/* Стили для неактивной кнопки */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Стили для валидных полей */
+.is-valid {
+    border-color: #198754 !important;
+}
+
+.form-check-input.is-valid {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.form-check-input.is-valid:checked {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+/* Стили для невалидных полей */
+.is-invalid {
+    border-color: #dc3545 !important;
+}
+
+.form-check-input.is-invalid {
+    border-color: #dc3545;
+}
+
+/* Стили для ссылки в чекбоксе */
+.form-check-label a {
+    text-decoration: none;
+}
+
+.form-check-label a:hover {
+    text-decoration: underline;
+}
+
+/* Стили для текста ошибок */
+.invalid-feedback {
+    display: none;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #dc3545;
+}
+
+.is-invalid ~ .invalid-feedback {
+    display: block;
+}
+
+/* Стили для текста подсказок */
+.form-text {
+    font-size: 0.875em;
+    margin-top: 0.25rem;
+}

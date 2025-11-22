@@ -10,19 +10,223 @@
                 <form id="callbackForm">
                     <div class="mb-3">
                         <label for="name" class="form-label text-white-custom">Ваше имя</label>
-                        <input type="text" class="form-control" id="name" required>
+                        <input type="text" class="form-control" id="name" required minlength="2">
+                        <div class="invalid-feedback">Пожалуйста, введите ваше имя (минимум 2 символа)</div>
                     </div>
                     <div class="mb-3">
                         <label for="phone" class="form-label text-white-custom">Телефон</label>
-                        <input type="tel" class="form-control" id="phone" required>
+                        <input type="tel" 
+                               class="form-control" 
+                               id="phone" 
+                               placeholder="+7(___)___-__-__"
+                               required
+                               pattern="\+7\(\d{3}\)\d{3}-\d{2}-\d{2}">
+                        <div class="invalid-feedback">Пожалуйста, введите корректный номер телефона</div>
+                        <small class="form-text text-muted">Формат: +7(XXX)XXX-XX-XX</small>
                     </div>
                     <div class="mb-3">
                         <label for="message" class="form-label text-white-custom">Сообщение (необязательно)</label>
                         <textarea class="form-control" id="message" rows="3"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary-custom w-100 py-2 fw-bold">Заказать звонок</button>
+                    
+                    <!-- Чекбокс согласия -->
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="privacyPolicy" required>
+                            <label class="form-check-label text-white-custom" for="privacyPolicy">
+                                Я соглашаюсь на <a href="/privacy-policy/" target="_blank" class="text-primary-custom">обработку персональных данных</a>
+                            </label>
+                            <div class="invalid-feedback">Необходимо ваше согласие для обработки данных</div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary-custom w-100 py-2 fw-bold" id="submitBtn" disabled>Заказать звонок</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+<!-- JavaScript для маски телефона и валидации -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const phoneInput = document.getElementById('phone');
+    const nameInput = document.getElementById('name');
+    const privacyCheckbox = document.getElementById('privacyPolicy');
+    const submitBtn = document.getElementById('submitBtn');
+    const form = document.getElementById('callbackForm');
+    
+    // Функция проверки валидности имени
+    function validateName() {
+        const name = nameInput.value.trim();
+        return name.length >= 2;
+    }
+    
+    // Функция проверки валидности телефона
+    function validatePhone() {
+        const phoneValue = phoneInput.value.replace(/\D/g, '');
+        return phoneValue.length === 11 && phoneValue.startsWith('7');
+    }
+    
+    // Функция проверки чекбокса
+    function validatePrivacy() {
+        return privacyCheckbox.checked;
+    }
+    
+    // Функция обновления состояния кнопки
+    function updateSubmitButton() {
+        const isNameValid = validateName();
+        const isPhoneValid = validatePhone();
+        const isPrivacyChecked = validatePrivacy();
+        
+        if (isNameValid && isPhoneValid && isPrivacyChecked) {
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('btn-disabled');
+        } else {
+            submitBtn.disabled = true;
+            submitBtn.classList.add('btn-disabled');
+        }
+    }
+    
+    // Маска для телефона
+    phoneInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        
+        // Если первый символ не 7, добавляем +7
+        if (value.length > 0 && value[0] !== '7') {
+            value = '7' + value;
+        }
+        
+        // Форматируем номер
+        let formattedValue = '+7(';
+        
+        if (value.length > 1) {
+            formattedValue += value.substring(1, 4);
+        }
+        if (value.length >= 4) {
+            formattedValue += ')';
+        }
+        if (value.length >= 4) {
+            formattedValue += value.substring(4, 7);
+        }
+        if (value.length >= 7) {
+            formattedValue += '-' + value.substring(7, 9);
+        }
+        if (value.length >= 9) {
+            formattedValue += '-' + value.substring(9, 11);
+        }
+        
+        e.target.value = formattedValue;
+        
+        // Валидация и обновление кнопки
+        validateField(phoneInput, validatePhone());
+        updateSubmitButton();
+    });
+    
+    // Валидация имени
+    nameInput.addEventListener('input', function() {
+        validateField(nameInput, validateName());
+        updateSubmitButton();
+    });
+    
+    nameInput.addEventListener('blur', function() {
+        validateField(nameInput, validateName());
+        updateSubmitButton();
+    });
+    
+    // Валидация чекбокса
+    privacyCheckbox.addEventListener('change', function() {
+        validatePrivacyField(validatePrivacy());
+        updateSubmitButton();
+    });
+    
+    // Функция для отображения состояния поля
+    function validateField(field, isValid) {
+        if (field.value.trim() !== '') {
+            if (isValid) {
+                field.classList.remove('is-invalid');
+                field.classList.add('is-valid');
+            } else {
+                field.classList.remove('is-valid');
+                field.classList.add('is-invalid');
+            }
+        } else {
+            field.classList.remove('is-valid', 'is-invalid');
+        }
+    }
+    
+    // Функция для отображения состояния чекбокса
+    function validatePrivacyField(isValid) {
+        if (privacyCheckbox.checked) {
+            privacyCheckbox.classList.remove('is-invalid');
+            privacyCheckbox.classList.add('is-valid');
+        } else {
+            privacyCheckbox.classList.remove('is-valid');
+            privacyCheckbox.classList.add('is-invalid');
+        }
+    }
+    
+    // Обработка клавиш Backspace и Delete для телефона
+    phoneInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Backspace' || e.key === 'Delete') {
+            setTimeout(() => {
+                let value = e.target.value;
+                if (value === '+7(') {
+                    e.target.value = '';
+                }
+                updateSubmitButton();
+            }, 0);
+        }
+    });
+    
+    // Обработка отправки формы
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const isNameValid = validateName();
+        const isPhoneValid = validatePhone();
+        const isPrivacyChecked = validatePrivacy();
+        
+        if (!isNameValid || !isPhoneValid || !isPrivacyChecked) {
+            // Показываем ошибки если есть
+            validateField(nameInput, isNameValid);
+            validateField(phoneInput, isPhoneValid);
+            validatePrivacyField(isPrivacyChecked);
+            return;
+        }
+        
+        // Здесь код отправки формы
+        const formData = {
+            name: nameInput.value.trim(),
+            phone: phoneInput.value,
+            message: document.getElementById('message').value,
+            privacyAgreed: true
+        };
+        
+        console.log('Данные для отправки:', formData);
+        
+        // Пример успешной отправки
+        alert('Форма успешно отправлена! Мы свяжемся с вами в ближайшее время.');
+        
+        // Сброс формы
+        form.reset();
+        submitBtn.disabled = true;
+        nameInput.classList.remove('is-valid', 'is-invalid');
+        phoneInput.classList.remove('is-valid', 'is-invalid');
+        privacyCheckbox.classList.remove('is-valid', 'is-invalid');
+        
+        // Закрываем модальное окно
+        const modal = bootstrap.Modal.getInstance(document.getElementById('callbackModal'));
+        modal.hide();
+    });
+    
+    // Сброс состояния при открытии модального окна
+    document.getElementById('callbackModal').addEventListener('show.bs.modal', function() {
+        form.reset();
+        submitBtn.disabled = true;
+        nameInput.classList.remove('is-valid', 'is-invalid');
+        phoneInput.classList.remove('is-valid', 'is-invalid');
+        privacyCheckbox.classList.remove('is-valid', 'is-invalid');
+    });
+});
+</script>

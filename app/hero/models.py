@@ -25,7 +25,7 @@ class HeroSection(models.Model):
 
 class HeroSectionMarkers(models.Model):
     title = models.CharField(max_length=100, blank=True,  verbose_name="Доп.информация")
-    icon = models.CharField(max_length=100, blank=True,  verbose_name="названия иноки")
+    icon = models.CharField(max_length=100, blank=True,  verbose_name="названия иконки")
     is_active = models.BooleanField(default=True, verbose_name="Видимость")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

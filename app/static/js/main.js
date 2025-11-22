@@ -35,12 +35,3 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         }
     });
 });
-
-// Обработка формы обратного звонка
-document.getElementById('callbackForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    alert('Спасибо! Мы свяжемся с вами в ближайшее время.');
-    const modal = bootstrap.Modal.getInstance(document.getElementById('callbackModal'));
-    modal.hide();
-    this.reset();
-});

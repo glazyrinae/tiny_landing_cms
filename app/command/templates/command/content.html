@@ -4,8 +4,8 @@
         <p class="text-center mb-5 text-white-custom">{{ content.desc }}</p>
         
         <div class="row g-4">
-            <div class="col-md-6 col-lg-3">
             {% for feature in content.features.all %}
+            <div class="col-md-6 col-lg-3">
                 <div class="card trainer-card h-100">
                     <div class="position-relative overflow-hidden">
                         <img src="{{MEDIA_URL}}{{ feature.src }}" class="card-img-top trainer-image" alt="{{ feature.alt }}">
@@ -20,8 +20,8 @@
                         <p class="card-text text-white-custom">Специализация: {{ feature.desc }}</p>
                     </div>
                 </div>
-            {% endfor %}
             </div>
+            {% endfor %}
         </div>
     </div>
 </section>
