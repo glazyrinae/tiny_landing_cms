@@ -17,15 +17,14 @@ def global_context(request):
     - Social media links
     """
     logger.debug(f"Processing global context for path: {request.path}")
-
+    settings = (
+        Landing.objects.values(
+            "title", "desc", "footer", "avatar"
+        ).first()
+        or {}
+    )
     # Получаем настройки блога
     try:
-        settings = (
-            Landing.objects.values(
-                "title", "desc", "footer", "avatar"
-            ).first()
-            or {}
-        )
         # anchors = BlockType.objects.all()
         # anchor_count = anchors.count()
         # logger.debug(f"Loaded {anchor_count} anchors")

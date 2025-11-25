@@ -122,3 +122,10 @@ LOGGING = {
         "level": "INFO",
     },
 }
+
+# Статические файлы
+STATIC_URL = "/staticfiles/"
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "staticfiles"),
+]

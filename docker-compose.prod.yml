@@ -7,32 +7,39 @@ services:
       - ./media:/app/media
       - ./logs:/app/logs
     environment:
-      DJANGO_SETTINGS_MODULE: tiny_cms.config.prod
+      DJANGO_SETTINGS_MODULE: tiny_cms.configs.prod
 
   nginx:
     build: ./nginx
     depends_on:
       - web
-    ports:
-      - "80:80"
-      - "443:443"
     volumes:
       - ./app/static:/var/www/static
       - ./media:/var/www/media
-      - ./certbot/www:/var/www/certbot
-      - ./certbot/conf:/etc/letsencrypt
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    labels:
+      - "traefik.enable=true"
+    
+      # HTTP → HTTPS редирект
+      - "traefik.http.routers.fizruk-http.rule=Host(`fizruk-fitness.ru`, `www.fizruk-fitness.ru`)"
+      - "traefik.http.routers.fizruk-http.entrypoints=web"
+      - "traefik.http.routers.fizruk-http.middlewares=redirect-to-https"
+      
+      # HTTPS
+      - "traefik.http.routers.fizruk-https.rule=Host(`fizruk-fitness.ru`, `www.fizruk-fitness.ru`)"
+      - "traefik.http.routers.fizruk-https.entrypoints=websecure"
+      - "traefik.http.routers.fizruk-https.tls.certresolver=letsencrypt"
+      
+      # Указываем порт nginx
+      - "traefik.http.services.fizruk.loadbalancer.server.port=80"
     networks:
+      - traefik-public
       - app_network
-
-  # certbot:
-  #   image: certbot/certbot
-  #   volumes:
-  #     - ./certbot/conf:/etc/letsencrypt
-  #     - ./certbot/www:/var/www/certbot
-  #   depends_on:
-  #     - nginx
-  #   command: certonly --webroot -w /var/www/certbot --force-renewal -d dl-blog.ru -d www.dl-blog.ru --email railot116@gmail.com --agree-tos
 
   db:
     env_file:
       - ./.env.prod
+
+networks:
+  traefik-public:
+    external: true

@@ -18,10 +18,11 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
-from .views import main  # из приложения core
+from .views import main, send_feedback  # из приложения core
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('send-feedback/', send_feedback, name='send_feedback'),
     path('', main, name='main'),  # главная страница
 ]
 if settings.DEBUG:

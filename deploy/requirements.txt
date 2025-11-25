@@ -12,3 +12,6 @@ django-extensions==3.2.1
 django-debug-toolbar==5.2.0
 python-lsp-server[all]
 pylsp-mypy
+
+requests
+python-dotenv
