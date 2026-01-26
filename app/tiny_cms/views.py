@@ -5,6 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.shortcuts import render
 import requests
+import logging
 
 # Путь к файлу с подписчиками
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -12,6 +13,9 @@ SUBSCRIBERS_FILE =  "/app/shared/subscribers.json" #os.path.join(BASE_DIR, 'subs
 
 BOT_TOKEN = '8401349380:AAH09bxeMtEYHcDCLOw0Ge6USpeLqY2Aj8E'
 # CHAT_ID тебе больше не нужен — рассылаем всем из файла
+
+
+logger = logging.getLogger("tiny_cms")
 
 def load_subscribers():
     if os.path.exists(SUBSCRIBERS_FILE):
@@ -43,6 +47,7 @@ def send_feedback(request):
         try:
             url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
             resp = requests.post(url, json={"chat_id": user_id, "text": text}, timeout=10)
+            logger.info(f"Response - {resp}")
             if resp.status_code != 200:
                 failed += 1
         except Exception:

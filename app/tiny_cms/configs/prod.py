@@ -108,12 +108,12 @@ LOGGING = {
         # Application loggers
         "landing": {
             "handlers": ["console", "file_landing", "file_errors"],
-            "level":  "ERROR",
+            "level": "ERROR",
             "propagate": False,
         },
         "settings": {
             "handlers": ["console", "file_settings", "file_errors"],
-            "level":  "ERROR",
+            "level": "ERROR",
             "propagate": False,
         },
     },
