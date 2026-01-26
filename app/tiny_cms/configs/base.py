@@ -29,6 +29,13 @@ DEBUG = bool(os.environ.get("DEBUG", default=False))
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
+# settings.py
+CSRF_TRUSTED_ORIGINS = [
+    "https://fizruk-fitness.ru",
+    "https://www.fizruk-fitness.ru",
+    "http://localhost:8000",  # для разработки
+    "http://127.0.0.1:8000",
+]
 
 # Application definition
 
@@ -47,7 +54,7 @@ INSTALLED_APPS = [
     "address.apps.AddressConfig",
     "settings.apps.SettingsConfig",
     "templates",
-    "taggit"
+    "taggit",
 ]
 
 MIDDLEWARE = [
@@ -65,7 +72,7 @@ ROOT_URLCONF = "tiny_cms.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -130,20 +137,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-# Статические файлы
-STATIC_URL = "/static/"
-
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-]
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")

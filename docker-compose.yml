@@ -42,9 +42,15 @@ services:
       - ./shared:/app/shared
     depends_on:
       - web
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
     env_file:
       - ./bot/.env
     restart: unless-stopped
+    networks:
+      - app_network  # Добавьте эту сеть
+      - traefik-public  # И эту, если нужен внешний доступ
 
 networks:
   app_network:
