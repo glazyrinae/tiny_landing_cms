@@ -10,13 +10,14 @@ services:
       - ./app:/app
       - ./media:/app/media
       - ./logs:/app/logs
+      - ./shared:/app/shared
     command: python manage.py runserver 0.0.0.0:8000
     env_file:
       - ./.env.dev
     depends_on:
       - db
     networks:
-      - postgres_network
+      - app_network
 
   db:
     image: postgres:15
@@ -34,7 +35,18 @@ services:
     env_file:
       - ./.env.dev
     networks:
-      - postgres_network
+      - app_network
+
+  telegram-bot:
+    build: ./bot/deploy
+    volumes:
+      - ./bot/:/app
+      - ./shared:/app/shared
+    depends_on:
+      - web
+    env_file:
+      - ./bot/.env
+    restart: unless-stopped
 
   pgbackrest_landing:
     build:
@@ -62,5 +74,7 @@ services:
     command: ["tail", "-f", "/dev/null"]      
 
 networks:
-  postgres_network:
+  app_network:
     driver: bridge
+  traefik-public:
+    external: true

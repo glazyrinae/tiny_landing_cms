@@ -7,7 +7,8 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="callbackForm">
+                <form id="callbackForm" method="POST">
+                    {% csrf_token %}
                     <div class="mb-3">
                         <label for="name" class="form-label text-white-custom">Ваше имя</label>
                         <input type="text" class="form-control" id="name" required minlength="2">
@@ -47,7 +48,6 @@
     </div>
 </div>
 
-<!-- JavaScript для маски телефона и валидации -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const phoneInput = document.getElementById('phone');
@@ -56,6 +56,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitBtn = document.getElementById('submitBtn');
     const form = document.getElementById('callbackForm');
     
+    // Получаем CSRF-токен из meta-тега
+    function getCSRFToken() {
+        const meta = document.querySelector("meta[name='csrf-token']");
+        return meta ? meta.getAttribute("content") : null;
+    }
+
     // Функция проверки валидности имени
     function validateName() {
         const name = nameInput.value.trim();
@@ -91,39 +97,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // Маска для телефона
     phoneInput.addEventListener('input', function(e) {
         let value = e.target.value.replace(/\D/g, '');
-        
-        // Если первый символ не 7, добавляем +7
         if (value.length > 0 && value[0] !== '7') {
             value = '7' + value;
         }
-        
-        // Форматируем номер
         let formattedValue = '+7(';
-        
-        if (value.length > 1) {
-            formattedValue += value.substring(1, 4);
-        }
-        if (value.length >= 4) {
-            formattedValue += ')';
-        }
-        if (value.length >= 4) {
-            formattedValue += value.substring(4, 7);
-        }
-        if (value.length >= 7) {
-            formattedValue += '-' + value.substring(7, 9);
-        }
-        if (value.length >= 9) {
-            formattedValue += '-' + value.substring(9, 11);
-        }
-        
+        if (value.length > 1) formattedValue += value.substring(1, 4);
+        if (value.length >= 4) formattedValue += ')';
+        if (value.length >= 4) formattedValue += value.substring(4, 7);
+        if (value.length >= 7) formattedValue += '-' + value.substring(7, 9);
+        if (value.length >= 9) formattedValue += '-' + value.substring(9, 11);
         e.target.value = formattedValue;
-        
-        // Валидация и обновление кнопки
         validateField(phoneInput, validatePhone());
         updateSubmitButton();
     });
     
-    // Валидация имени
     nameInput.addEventListener('input', function() {
         validateField(nameInput, validateName());
         updateSubmitButton();
@@ -134,53 +121,36 @@ document.addEventListener('DOMContentLoaded', function() {
         updateSubmitButton();
     });
     
-    // Валидация чекбокса
     privacyCheckbox.addEventListener('change', function() {
         validatePrivacyField(validatePrivacy());
         updateSubmitButton();
     });
     
-    // Функция для отображения состояния поля
     function validateField(field, isValid) {
         if (field.value.trim() !== '') {
-            if (isValid) {
-                field.classList.remove('is-invalid');
-                field.classList.add('is-valid');
-            } else {
-                field.classList.remove('is-valid');
-                field.classList.add('is-invalid');
-            }
+            field.classList.toggle('is-valid', isValid);
+            field.classList.toggle('is-invalid', !isValid);
         } else {
             field.classList.remove('is-valid', 'is-invalid');
         }
     }
     
-    // Функция для отображения состояния чекбокса
     function validatePrivacyField(isValid) {
-        if (privacyCheckbox.checked) {
-            privacyCheckbox.classList.remove('is-invalid');
-            privacyCheckbox.classList.add('is-valid');
-        } else {
-            privacyCheckbox.classList.remove('is-valid');
-            privacyCheckbox.classList.add('is-invalid');
-        }
+        privacyCheckbox.classList.toggle('is-valid', isValid);
+        privacyCheckbox.classList.toggle('is-invalid', !isValid);
     }
     
-    // Обработка клавиш Backspace и Delete для телефона
     phoneInput.addEventListener('keydown', function(e) {
         if (e.key === 'Backspace' || e.key === 'Delete') {
             setTimeout(() => {
-                let value = e.target.value;
-                if (value === '+7(') {
-                    e.target.value = '';
-                }
+                if (e.target.value === '+7(') e.target.value = '';
                 updateSubmitButton();
             }, 0);
         }
     });
     
-    // Обработка отправки формы
-    form.addEventListener('submit', function(e) {
+    // 🔥 ОСНОВНОЙ БЛОК: отправка формы через AJAX на Django
+    form.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         const isNameValid = validateName();
@@ -188,39 +158,53 @@ document.addEventListener('DOMContentLoaded', function() {
         const isPrivacyChecked = validatePrivacy();
         
         if (!isNameValid || !isPhoneValid || !isPrivacyChecked) {
-            // Показываем ошибки если есть
             validateField(nameInput, isNameValid);
             validateField(phoneInput, isPhoneValid);
             validatePrivacyField(isPrivacyChecked);
             return;
         }
         
-        // Здесь код отправки формы
-        const formData = {
-            name: nameInput.value.trim(),
-            phone: phoneInput.value,
-            message: document.getElementById('message').value,
-            privacyAgreed: true
-        };
+        // Получаем CSRF-токен из мета-тега (обязательно!)
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
         
-        console.log('Данные для отправки:', formData);
-        
-        // Пример успешной отправки
-        alert('Форма успешно отправлена! Мы свяжемся с вами в ближайшее время.');
-        
-        // Сброс формы
-        form.reset();
+        const formData = new FormData();
+        formData.append('name', nameInput.value.trim());
+        formData.append('phone', phoneInput.value);
+        formData.append('message', document.getElementById('message').value.trim());
+        formData.append('csrfmiddlewaretoken', csrfToken);
+
         submitBtn.disabled = true;
-        nameInput.classList.remove('is-valid', 'is-invalid');
-        phoneInput.classList.remove('is-valid', 'is-invalid');
-        privacyCheckbox.classList.remove('is-valid', 'is-invalid');
-        
-        // Закрываем модальное окно
-        const modal = bootstrap.Modal.getInstance(document.getElementById('callbackModal'));
-        modal.hide();
+        submitBtn.textContent = 'Отправка...';
+
+        try {
+            const response = await fetch('/send-feedback/', {
+                method: 'POST',
+                body: formData  // ← FormData автоматически установит правильный Content-Type
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.status === 'ok') {
+                // Успех
+                const modal = bootstrap.Modal.getInstance(document.getElementById('callbackModal'));
+                modal.hide();
+                alert('✅ Спасибо! Мы свяжемся с вами в ближайшее время.');
+                form.reset();
+            } else {
+                // Ошибка от сервера
+                const errorMsg = result.error || 'Не удалось отправить заявку. Попробуйте позже.';
+                alert('❌ Ошибка: ' + errorMsg);
+            }
+        } catch (error) {
+            // Ошибка сети
+            alert('❌ Ошибка подключения. Проверьте интернет и попробуйте снова.');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Заказать звонок';
+        }
     });
     
-    // Сброс состояния при открытии модального окна
+    // Сброс при открытии модалки
     document.getElementById('callbackModal').addEventListener('show.bs.modal', function() {
         form.reset();
         submitBtn.disabled = true;
