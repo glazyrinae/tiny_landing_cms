@@ -19,10 +19,12 @@ services:
       - postgres_network
 
   db:
-    container_name: db_cms  
     image: postgres:15
     user: "${APP_UID:-1000}:${APP_GID:-1000}"
+    ports:
+      - "5433:5432"
     volumes:
+      - ./deploy/db_data/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
       - ./deploy/db_data:/var/lib/postgresql/data
       - ./deploy/db_backup:/backup
     environment:
@@ -33,6 +35,31 @@ services:
       - ./.env.dev
     networks:
       - postgres_network
+
+  pgbackrest_landing:
+    build:
+      context: ./pgbackrest
+      dockerfile: ./DockerpgBackRestfile
+      args:
+        APP_UID: ${APP_UID:-1001}
+        APP_GID: ${APP_GID:-1001}
+    user: "${APP_UID:-1001}:${APP_GID:-1001}"
+    environment:
+      HOME: /home/pgbackrest
+      PGBACKREST_CONFIG_PATH: /etc/pgbackrest
+      PGDATA: /var/lib/postgresql/data
+    # ports:
+    #   - "2222:22"
+    depends_on:
+      - db
+      - ./pgbackrest/.pgpass:/home/pgbackrest/.pgpass:ro
+      - ./pgbackrest/config:/etc/pgbackrest
+      - ./pgbackrest/logs:/var/log/pgbackrest
+      - ./deploy/db_data:/var/lib/postgresql/data:rw
+      - ./deploy/socket:/var/run/postgresql:ro
+      - ./pgbackrest/ssh:/home/pgbackrest/.ssh/authorized_keys:ro
+      - ./tmp_pgbackrest:/tmp/pgbackrest
+    command: ["tail", "-f", "/dev/null"]      
 
 networks:
   postgres_network:
