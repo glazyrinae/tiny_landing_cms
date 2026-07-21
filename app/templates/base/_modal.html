@@ -11,7 +11,7 @@
                     {% csrf_token %}
                     <div class="mb-3">
                         <label for="name" class="form-label text-white-custom">Ваше имя</label>
-                        <input type="text" class="form-control" id="name" required minlength="2">
+                        <input type="text" class="form-control" id="name" name="name" required minlength="2">
                         <div class="invalid-feedback">Пожалуйста, введите ваше имя (минимум 2 символа)</div>
                     </div>
                     <div class="mb-3">
@@ -19,6 +19,7 @@
                         <input type="tel" 
                                class="form-control" 
                                id="phone" 
+                               name="phone"
                                placeholder="+7(___)___-__-__"
                                required
                                pattern="\+7\(\d{3}\)\d{3}-\d{2}-\d{2}">
@@ -27,7 +28,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="message" class="form-label text-white-custom">Сообщение (необязательно)</label>
-                        <textarea class="form-control" id="message" rows="3"></textarea>
+                        <textarea class="form-control" id="message" name="message" rows="3"></textarea>
                     </div>
                     
                     <!-- Чекбокс согласия -->
@@ -35,7 +36,7 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="privacyPolicy" required>
                             <label class="form-check-label text-white-custom" for="privacyPolicy">
-                                Я соглашаюсь на <a href="/privacy-policy/" target="_blank" class="text-primary-custom">обработку персональных данных</a>
+                                Я соглашаюсь на <a href="https://ips.pravo.gov.ru/api/ips/legislation/document?baseid=None&amp;hash=98490812b3409e2a8d78a11ca9010f434ea3d9250a11dbbdb78690cd5551bdd6" target="_blank" rel="noopener" class="text-primary-custom">обработку персональных данных</a>
                             </label>
                             <div class="invalid-feedback">Необходимо ваше согласие для обработки данных</div>
                         </div>

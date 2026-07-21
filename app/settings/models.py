@@ -61,3 +61,19 @@ class SocialMedia(models.Model):
 
     def __repr__(self):
         return f"<SocialMedia: {self.title} - {self.url_link}>"
+
+
+class CallbackRequest(models.Model):
+    name = models.CharField(max_length=120, verbose_name="Имя")
+    phone = models.CharField(max_length=32, verbose_name="Телефон")
+    message = models.TextField(blank=True, verbose_name="Сообщение")
+    is_processed = models.BooleanField(default=False, verbose_name="Обработано")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Создано")
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Заявка"
+        verbose_name_plural = "Заявки"
+
+    def __str__(self):
+        return f"{self.name} — {self.phone}"

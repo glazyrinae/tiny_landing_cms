@@ -170,15 +170,6 @@ Run migrations:
 docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.local.yml exec web python manage.py migrate
 ```
 
-`ModuleNotFoundError: No module named 'requests'`
-
-The `web` image/container is stale. Rebuild and recreate it:
-
-```bash
-docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.local.yml build web
-docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.local.yml up -d --force-recreate web
-```
-
 Warnings like `The "SQL_USER" variable is not set` when viewing logs.
 
 Use the project env file with Compose commands:

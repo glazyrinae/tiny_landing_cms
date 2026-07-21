@@ -35,6 +35,7 @@ media/*
 # Migrations
 app/blog/migrations/*
 app/settings/migrations/*
+!app/settings/migrations/*.py
 app/about/migrations/*
 app/address/migrations/*
 app/command/migrations/*

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django import forms
 
-from .models import Landing, SocialMedia
+from .models import CallbackRequest, Landing, SocialMedia
 
 # Constants
 FORM_ATTRS = {
@@ -57,3 +57,16 @@ class LandingAdmin(admin.ModelAdmin):
             formset.save()
         else:
             super().save_formset(request, form, formset, change)
+
+
+@admin.register(CallbackRequest)
+class CallbackRequestAdmin(admin.ModelAdmin):
+    list_display = ("created_at_ru", "name", "phone", "is_processed")
+    list_editable = ("is_processed",)
+    list_filter = ("is_processed", "created_at")
+    search_fields = ("name", "phone", "message")
+    readonly_fields = ("created_at_ru",)
+
+    @admin.display(description="Создано", ordering="created_at")
+    def created_at_ru(self, obj):
+        return obj.created_at.strftime("%d.%m.%Y %H:%M")
