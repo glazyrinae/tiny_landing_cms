@@ -42,6 +42,7 @@ app/command/migrations/*
 app/hero/migrations/*
 app/price/migrations/*
 app/service/migrations/*
+!app/*/migrations/*.py
 !app/*/migrations/__init__.py
 
 # Database

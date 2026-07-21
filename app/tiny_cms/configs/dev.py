@@ -4,7 +4,7 @@ from pathlib import Path
 import os
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.environ.get("DEBUG", default=True))
+DEBUG = env_bool("DEBUG", default=True)
 
 DEBUG_TOOLBAR_PANELS = [
     "debug_toolbar.panels.history.HistoryPanel",
@@ -143,10 +143,3 @@ LOGGING = {
         "level": "INFO",
     },
 }
-
-# Статические файлы
-STATIC_URL = "/static/"
-
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-]

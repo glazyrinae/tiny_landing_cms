@@ -15,13 +15,21 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
 from django.conf.urls.static import static
 from django.conf import settings
-from .views import main, send_feedback  # из приложения core
+from django.views.generic import RedirectView
+from .views import main, robots_txt, send_feedback, sitemap_xml  # из приложения core
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('robots.txt', robots_txt, name='robots_txt'),
+    path('sitemap.xml', sitemap_xml, name='sitemap_xml'),
+    path(
+        'favicon.ico',
+        RedirectView.as_view(url='/media/logo.jpg', permanent=True),
+        name='favicon',
+    ),
     path('send-feedback/', send_feedback, name='send_feedback'),
     path('', main, name='main'),  # главная страница
 ]

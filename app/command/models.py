@@ -26,7 +26,7 @@ class CommandSectionFeatures(models.Model):
     title = models.CharField(max_length=100, blank=True,  verbose_name="Доп.информация")
     name = models.CharField(max_length=100, blank=True,  verbose_name="имя")
     status = models.CharField(max_length=100, blank=True,  verbose_name="должность")
-    desc = models.CharField(max_length=100, blank=True,  verbose_name="описание")
+    desc = models.TextField(max_length=500, blank=True,  verbose_name="описание")
     social = models.CharField(max_length=100, blank=True,  verbose_name="контакты")
     is_active = models.BooleanField(default=True, verbose_name="Видимость")
     created_at = models.DateTimeField(auto_now_add=True)

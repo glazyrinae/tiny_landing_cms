@@ -1,3 +1,4 @@
+{% if content %}
 <section id="{{ content.slug }}" class="py-5 bg-dark-custom">
     <div class="container">
         <h2 class="section-title text-center text-white-custom">{{ content.title }}</h2>
@@ -20,3 +21,4 @@
         </div>
     </div>
 </section>
+{% endif %}

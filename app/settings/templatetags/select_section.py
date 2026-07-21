@@ -1,6 +1,7 @@
-from django import template
-from django.apps import apps
 import importlib
+
+from django import template
+from django.utils.safestring import mark_safe
 
 register = template.Library()
 
@@ -53,12 +54,13 @@ def select_section(block_type, limit):
         view_func = getattr(view_module, config['view'])
         
         # Получаем контекст
-        block_context = view_func(limit)
+        block_context = view_func(**limit) if isinstance(limit, dict) else view_func(limit)
         
         # Рендерим шаблон
-        return template.loader.render_to_string(
+        rendered = template.loader.render_to_string(
             config['template'],
             context={**block_context}
         )
+        return mark_safe(rendered)
     except Exception as e:
         return f"<!-- Error in {block_type}: {e} -->"

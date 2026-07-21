@@ -1,3 +1,4 @@
+{% if content %}
 <section id="{{ content.slug }}" class="py-5 bg-dark-custom">
     <div class="container">
         <h2 class="section-title text-center text-white-custom">{{ content.title }}</h2>
@@ -17,7 +18,7 @@
                         <ul class="list-unstyled my-4">
                             {{feature.services|safe}}
                         </ul>
-                        <button class="btn btn-outline-primary-custom w-100" data-bs-toggle="modal" data-bs-target="#callbackModal">Выбрать</button>
+                        <button class="btn btn-outline-primary-custom w-100" type="button" data-bs-toggle="modal" data-bs-target="#callbackModal">Выбрать</button>
                     </div>
                 </div>
             </div>
@@ -26,9 +27,10 @@
         
         <!-- Кнопка заказа звонка в конце секции цен -->
         <div class="text-center mt-5">
-            <button class="btn btn-primary-custom btn-lg big-call-button" data-bs-toggle="modal" data-bs-target="#callbackModal">
+            <button class="btn btn-primary-custom btn-lg big-call-button" type="button" data-bs-toggle="modal" data-bs-target="#callbackModal">
                 <i class="fas fa-phone-alt me-2"></i>ПОЛУЧИТЬ КОНСУЛЬТАЦИЮ
             </button>
         </div>
     </div>
 </section>
+{% endif %}

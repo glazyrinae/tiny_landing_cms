@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /send-feedback/
+Allow: /static/
+Allow: /media/
+
+Clean-param: {{ clean_param|safe }}
+Sitemap: {{ sitemap_url }}

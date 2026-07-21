@@ -1,3 +1,4 @@
+{% if content %}
 <section id="{{ content.slug }}" class="py-5">
     <div class="container">
         <h2 class="section-title text-center text-white-custom">{{ content.title }}</h2>
@@ -8,16 +9,19 @@
             <div class="col-md-6 col-lg-3">
                 <div class="card trainer-card h-100">
                     <div class="position-relative overflow-hidden">
-                        <img src="{{MEDIA_URL}}{{ feature.src }}" class="card-img-top trainer-image" alt="{{ feature.alt }}">
+                        {% if feature.src %}
+                        <img src="{{ MEDIA_URL }}{{ feature.src }}" class="card-img-top trainer-image" alt="{% firstof feature.alt feature.name %}" loading="lazy" decoding="async">
+                        {% endif %}
+                        {% if feature.social %}
                         <div class="trainer-social">
-                            <a href="#" class="social-icon text-white-custom"><i class="fab fa-instagram"></i></a>
-                            <a href="#" class="social-icon text-white-custom"><i class="fab fa-vk"></i></a>
+                            <a href="{{ feature.social }}" class="social-icon text-white-custom" target="_blank" rel="noopener noreferrer" aria-label="Профиль тренера {{ feature.name }}"><i class="fab fa-vk"></i></a>
                         </div>
+                        {% endif %}
                     </div>
                     <div class="card-body text-center">
                         <h5 class="card-title text-white-custom">{{ feature.name }}</h5>
                         <p class="trainer-specialty">{{ feature.status }}</p>
-                        <p class="card-text text-white-custom">Специализация: {{ feature.desc }}</p>
+                        <p class="card-text text-white-custom">{{ feature.desc }}</p>
                     </div>
                 </div>
             </div>
@@ -25,3 +29,4 @@
         </div>
     </div>
 </section>
+{% endif %}

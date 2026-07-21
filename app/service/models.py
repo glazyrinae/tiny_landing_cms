@@ -24,7 +24,7 @@ class ServiceSection(models.Model):
 
 class ServiceSectionFeatures(models.Model):
     title = models.CharField(max_length=100, blank=True,  verbose_name="Доп.информация")
-    desc = models.CharField(max_length=100, blank=True,  verbose_name="Oписание")
+    desc = models.TextField(max_length=500, blank=True,  verbose_name="Oписание")
     icon = models.CharField(max_length=100, blank=True,  verbose_name="icon")
     is_active = models.BooleanField(default=True, verbose_name="Видимость")
     created_at = models.DateTimeField(auto_now_add=True)

@@ -1,8 +1,10 @@
 import logging
 
+from address.models import AddressSection
 from settings.models import SocialMedia
 
 from .models import Landing
+from tiny_cms.seo import build_local_business_schema, get_landing_seo_context
 
 logger = logging.getLogger("settings")
 
@@ -17,12 +19,15 @@ def global_context(request):
     - Social media links
     """
     logger.debug(f"Processing global context for path: {request.path}")
-    settings = (
+    landing = (
         Landing.objects.values(
             "title", "desc", "footer", "avatar"
         ).first()
         or {}
     )
+    seo_context = get_landing_seo_context(request, landing)
+    structured_data = ""
+
     # Получаем настройки блога
     try:
         # anchors = BlockType.objects.all()
@@ -30,6 +35,13 @@ def global_context(request):
         # logger.debug(f"Loaded {anchor_count} anchors")
 
         social_media = SocialMedia.objects.all()
+        social_links = list(social_media.values_list("url_link", flat=True))
+        address = AddressSection.objects.first()
+        structured_data = build_local_business_schema(
+            seo_context,
+            address=address,
+            social_links=social_links,
+        )
         social_count = social_media.count()
         logger.debug(f"Loaded {social_count} social media links")
 
@@ -40,11 +52,13 @@ def global_context(request):
 
     context = {
         #"anchors": anchors,
-        "title": settings.get("title", ""),
-        "about": settings.get("desc", ""),
-        "footer": settings.get("footer", ""),
-        "avatar": settings.get("avatar", ""),
+        "title": landing.get("title", ""),
+        "about": landing.get("desc", ""),
+        "footer": landing.get("footer", ""),
+        "avatar": landing.get("avatar", ""),
         "social_media": social_media,
+        "structured_data": structured_data,
+        **seo_context,
     }
 
     logger.debug("Global context processing completed")

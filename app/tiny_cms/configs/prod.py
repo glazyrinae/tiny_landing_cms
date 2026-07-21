@@ -123,9 +123,9 @@ LOGGING = {
     },
 }
 
-# Статические файлы
-STATIC_URL = "/staticfiles/"
+# Статические файлы отдаются nginx через location /static/.
+STATIC_URL = "/static/"
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "staticfiles"),
+    os.path.join(BASE_DIR, "static"),
 ]
