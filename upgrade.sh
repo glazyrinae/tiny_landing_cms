@@ -16,6 +16,17 @@ load_env() {
     fi
 }
 
+compose() {
+    if docker compose version >/dev/null 2>&1; then
+        docker compose "$@"
+    elif command -v docker-compose >/dev/null 2>&1; then
+        docker-compose "$@"
+    else
+        echo "Docker Compose не найден. Установите Docker Compose v2." >&2
+        exit 1
+    fi
+}
+
 compose_dev_files=(-f docker-compose.yml)
 if [[ -f docker-compose.local.yml ]]; then
     compose_dev_files+=(-f docker-compose.local.yml)
@@ -24,19 +35,19 @@ fi
 case "${ACTION} ${ENV}" in
   "start dev")
     load_env ".env.dev"
-    docker-compose --env-file .env.dev "${compose_dev_files[@]}" up -d
+    compose --env-file .env.dev "${compose_dev_files[@]}" up -d
     ;;
   "stop dev")
     load_env ".env.dev"
-    docker-compose --env-file .env.dev "${compose_dev_files[@]}" down
+    compose --env-file .env.dev "${compose_dev_files[@]}" down
     ;;
   "start prod")
     load_env ".env.prod"
-    docker-compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml up -d
+    compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml up -d
     ;;
   "stop prod")
     load_env ".env.prod"
-    docker-compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml down
+    compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml down
     ;;
   "renew prod")
     # Обновление/получение сертификата через certbot в Docker
@@ -60,7 +71,7 @@ case "${ACTION} ${ENV}" in
 
     # Останавливаем nginx чтобы освободить порт 80
     echo "Останавливаем nginx для standalone mode..."
-    docker-compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml stop nginx
+    compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml stop nginx
 
     # Получение сертификата через standalone mode
     echo "Получение сертификата через standalone mode..."
@@ -77,7 +88,7 @@ case "${ACTION} ${ENV}" in
 
     # Запускаем nginx обратно
     echo "Запускаем nginx обратно..."
-    docker-compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml start nginx
+    compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml start nginx
 
     echo "Сертификат успешно получен/обновлен!"
     ;;

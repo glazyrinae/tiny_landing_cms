@@ -37,50 +37,6 @@ services:
     networks:
       - app_network
 
-  telegram-bot:
-    build: ./bot/deploy
-    volumes:
-      - ./bot/:/app
-      - ./shared:/app/shared
-    depends_on:
-      - web
-    dns:
-      - 8.8.8.8
-      - 1.1.1.1
-    env_file:
-      - ./bot/.env
-    restart: unless-stopped
-    networks:
-      - app_network  # Добавьте эту сеть
-      - traefik-public  # И эту, если нужен внешний доступ
-
-  pgbackrest_landing:
-    build:
-      context: ./pgbackrest
-      dockerfile: ./DockerpgBackRestfile
-      args:
-        APP_UID: ${APP_UID:-1001}
-        APP_GID: ${APP_GID:-1001}
-    user: "${APP_UID:-1001}:${APP_GID:-1001}"
-    environment:
-      HOME: /home/pgbackrest
-      PGBACKREST_CONFIG_PATH: /etc/pgbackrest
-      PGDATA: /var/lib/postgresql/data
-    # ports:
-    #   - "2222:22"
-    depends_on:
-      - db
-      - ./pgbackrest/.pgpass:/home/pgbackrest/.pgpass:ro
-      - ./pgbackrest/config:/etc/pgbackrest
-      - ./pgbackrest/logs:/var/log/pgbackrest
-      - ./deploy/db_data:/var/lib/postgresql/data:rw
-      - ./deploy/socket:/var/run/postgresql:ro
-      - ./pgbackrest/ssh:/home/pgbackrest/.ssh/authorized_keys:ro
-      - ./tmp_pgbackrest:/tmp/pgbackrest
-    command: ["tail", "-f", "/dev/null"]      
-
 networks:
   app_network:
     driver: bridge
-  traefik-public:
-    external: true

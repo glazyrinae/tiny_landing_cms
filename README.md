@@ -1,184 +1,188 @@
 # Tiny Landing CMS
 
-A lightweight, easy-to-use Content Management System specifically designed for landing pages. This CMS provides a simple way to manage and update landing page content without the complexity of full-featured CMS platforms.
+Tiny Landing CMS is a small Django-based CMS for managing a landing page through
+the Django admin panel.
 
-## Features
+## Stack
 
-- 🚀 Fast and lightweight
-- 📝 Simple content editing
-- 🎨 Theme customization
-- 📱 Mobile-responsive
-- 🔒 Secure authentication
-- 🔄 Real-time preview
-- 📦 Easy deployment
-
-## Tech Stack
-
-- Backend: Node.js with Express
-- Frontend: React
-- Database: SQLite
-- Authentication: JWT
-- Styling: Tailwind CSS
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js (v16 or higher)
-- npm or yarn
-- Git
-
-### Installation
-
-1. Clone the repository:
-
-    ```bash
-    git clone https://github.com/yourusername/tiny_landing_cms.git
-    cd tiny_landing_cms
-    ```
-
-2. Install dependencies:
-
-    ```bash
-    npm install
-    ```
-
-3. Set up environment variables:
-
-    ```bash
-    cp .env.example .env
-    ```
-
-4. Initialize the database:
-
-    ```bash
-    npm run db:init
-    ```
-
-5. Start the development server:
-
-    ```bash
-    npm run dev
-    ```
-
-    The application will be available at `http://localhost:3000`
+- Python 3.12
+- Django 5
+- PostgreSQL 15
+- Docker Compose
+- Gunicorn + Nginx for production
 
 ## Project Structure
 
+```text
+.
+|-- app/                    # Django project and apps
+|   |-- manage.py
+|   |-- tiny_cms/            # Django settings, urls, ASGI/WSGI
+|   |-- hero/                # Hero section content
+|   |-- about/               # About section content
+|   |-- service/             # Services section content
+|   |-- price/               # Pricing section content
+|   |-- command/             # Team/command section content
+|   |-- address/             # Address/contact content
+|   `-- settings/            # Global site settings
+|-- deploy/                 # Django Docker image and database data
+|-- nginx/                  # Production Nginx config
+|-- media/                  # Uploaded media files
+|-- logs/                   # Application logs
+|-- shared/                 # Shared files between services
+|-- docker-compose.yml      # Base Docker Compose config
+|-- docker-compose.local.yml
+|-- docker-compose.prod.yml
+`-- upgrade.sh              # Helper script for dev/prod compose commands
 ```
-tiny_landing_cms/
-├── client/                 # Frontend React application
-├── server/                 # Backend Node.js/Express application
-├── database/              # Database migrations and seeds
-├── public/               # Static files
-└── docs/                 # Documentation
-```
 
-## Configuration
+## Requirements
 
-The CMS can be configured through the `.env` file. Available options include:
+- Docker
+- Docker Compose v2 (`docker compose`)
 
-- `PORT`: Server port (default: 3000)
-- `DATABASE_URL`: Database connection string
-- `JWT_SECRET`: Secret key for JWT tokens
-- `ADMIN_EMAIL`: Default admin email
-- `ADMIN_PASSWORD`: Default admin password
+Legacy `docker-compose` v1 can fail on newer Docker versions with
+`KeyError: 'ContainerConfig'`. Use Docker Compose v2 commands below.
 
-## Usage
+## Environment Files
 
-### Content Management
+Local development uses `.env.dev`.
 
-1. Login to the admin panel at `/admin`
-2. Navigate to the content section
-3. Edit your landing page content using the visual editor
-4. Preview changes in real-time
-5. Publish when ready
+Production uses `.env.prod`.
 
-### Theme Customization
+## Local Development
 
-1. Access the theme editor in the admin panel
-2. Modify colors, typography, and layout
-3. Save changes to update the landing page appearance
-
-## API Documentation
-
-The CMS provides a RESTful API for content management:
-
-- `GET /api/content`: Retrieve page content
-- `POST /api/content`: Update page content
-- `GET /api/themes`: List available themes
-- `PUT /api/themes`: Update theme settings
-
-## Development
-
-### Running Tests
+Start only the services required for the site:
 
 ```bash
-npm test
+docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.local.yml up -d db web
 ```
 
-### Building for Production
+Apply database migrations:
 
 ```bash
-npm run build
+docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.local.yml exec web python manage.py migrate
 ```
 
-### Deployment
+Open the site:
 
-1. Build the project
-2. Set production environment variables
-3. Run database migrations
-4. Start the server:
+```text
+http://localhost:8000
+```
 
-    ```bash
-    npm start
-    ```
+Open the admin panel:
 
-## Contributing
+```text
+http://localhost:8000/admin/
+```
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+Create an admin user:
 
-## Security
+```bash
+docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.local.yml exec web python manage.py createsuperuser
+```
 
-- All admin routes are protected with JWT authentication
-- Password hashing using bcrypt
-- CSRF protection enabled
-- XSS prevention measures
-- Regular security updates
+## Running All Development Services
 
-## Troubleshooting
+Use the helper script to start all enabled development services:
 
-Common issues and solutions:
+```bash
+./upgrade.sh start dev
+```
 
-1. **Database connection fails**
-   - Check database credentials
-   - Verify database server is running
+Stop development services:
 
-2. **Cannot login to admin panel**
-   - Ensure correct credentials in .env
-   - Check server logs for errors
+```bash
+./upgrade.sh stop dev
+```
 
-## License
+In the current compose file, the enabled development services are `db` and
+`web`.
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+## Useful Commands
 
-## Support
+Show running containers:
 
-For support, please:
-- Check the documentation
-- Create an issue on GitHub
-- Join our community Discord
+```bash
+docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.local.yml ps
+```
 
-## Acknowledgments
+Follow Django logs:
 
-- Thanks to all contributors
-- Built with open source software
-- Inspired by the need for a simple landing page CMS
+```bash
+docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.local.yml logs -f web
+```
 
----
+Open a shell in the Django container:
 
-For detailed documentation, visit our [Wiki](https://github.com/yourusername/tiny_landing_cms/wiki)
+```bash
+docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.local.yml exec web sh
+```
+
+Run Django checks:
+
+```bash
+docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.local.yml exec web python manage.py check
+```
+
+Stop local site services:
+
+```bash
+docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.local.yml down
+```
+
+## Production
+
+Before production start, configure `.env.prod`, domain names, Traefik labels,
+Nginx config, and the external `traefik-public` Docker network.
+
+Start production services:
+
+```bash
+./upgrade.sh start prod
+```
+
+Stop production services:
+
+```bash
+./upgrade.sh stop prod
+```
+
+Certificate helpers:
+
+```bash
+./upgrade.sh renew prod
+./upgrade.sh renew-dns prod
+```
+
+## Common Issues
+
+Port `8000` is already in use.
+
+Stop the process using the port or change the port mapping in
+`docker-compose.local.yml`.
+
+Database changes are not applied.
+
+Run migrations:
+
+```bash
+docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.local.yml exec web python manage.py migrate
+```
+
+`ModuleNotFoundError: No module named 'requests'`
+
+The `web` image/container is stale. Rebuild and recreate it:
+
+```bash
+docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.local.yml build web
+docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.local.yml up -d --force-recreate web
+```
+
+Warnings like `The "SQL_USER" variable is not set` when viewing logs.
+
+Use the project env file with Compose commands:
+
+```bash
+docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.local.yml logs -f web
+```
