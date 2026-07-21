@@ -13,24 +13,29 @@ services:
     build: ./nginx
     depends_on:
       - web
+    restart: unless-stopped
     volumes:
-      - ./app/static:/var/www/static
+      - ./app/staticfiles:/var/www/static
       - ./media:/var/www/media
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     labels:
       - "traefik.enable=true"
-    
-      # HTTP → HTTPS редирект
-      - "traefik.http.routers.fizruk-http.rule=Host(`fizruk-fitness.ru`, `www.fizruk-fitness.ru`)"
+      - "traefik.docker.network=traefik-public"
+
+      - "traefik.http.middlewares.fizruk-redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.fizruk-redirect-to-https.redirectscheme.permanent=true"
+
+      - "traefik.http.routers.fizruk-http.rule=Host(`fizruk-fitness.ru`) || Host(`www.fizruk-fitness.ru`)"
       - "traefik.http.routers.fizruk-http.entrypoints=web"
-      - "traefik.http.routers.fizruk-http.middlewares=redirect-to-https"
-      
-      # HTTPS
-      - "traefik.http.routers.fizruk-https.rule=Host(`fizruk-fitness.ru`, `www.fizruk-fitness.ru`)"
+      - "traefik.http.routers.fizruk-http.middlewares=fizruk-redirect-to-https"
+      - "traefik.http.routers.fizruk-http.service=fizruk"
+
+      - "traefik.http.routers.fizruk-https.rule=Host(`fizruk-fitness.ru`) || Host(`www.fizruk-fitness.ru`)"
       - "traefik.http.routers.fizruk-https.entrypoints=websecure"
+      - "traefik.http.routers.fizruk-https.tls=true"
       - "traefik.http.routers.fizruk-https.tls.certresolver=letsencrypt"
-      
-      # Указываем порт nginx
+      - "traefik.http.routers.fizruk-https.service=fizruk"
+
       - "traefik.http.services.fizruk.loadbalancer.server.port=80"
     networks:
       - traefik-public
