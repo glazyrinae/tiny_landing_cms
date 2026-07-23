@@ -21,6 +21,10 @@ from django.conf import settings
 from django.views.generic import RedirectView
 from .views import main, robots_txt, send_feedback, sitemap_xml  # из приложения core
 
+admin.site.site_header = 'Админка физрук'
+admin.site.site_title = 'Админка физрук'
+admin.site.index_title = 'Админка физрук'
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('robots.txt', robots_txt, name='robots_txt'),

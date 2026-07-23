@@ -1,6 +1,7 @@
 import logging
 
 from address.models import AddressSection
+from django.conf import settings
 from settings.models import SocialMedia
 
 from .models import Landing
@@ -58,6 +59,7 @@ def global_context(request):
         "avatar": landing.get("avatar", ""),
         "social_media": social_media,
         "structured_data": structured_data,
+        "yandex_metrika_counter_id": settings.YANDEX_METRIKA_COUNTER_ID,
         **seo_context,
     }
 

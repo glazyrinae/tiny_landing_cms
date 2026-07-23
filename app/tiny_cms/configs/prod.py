@@ -7,6 +7,11 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
+YANDEX_METRIKA_COUNTER_ID = os.environ.get(
+    "YANDEX_METRIKA_COUNTER_ID",
+    "110979609",
+)
+
 
 # Logging Configuration
 # https://docs.djangoproject.com/en/5.1/topics/logging/

@@ -49,6 +49,7 @@ ALLOWED_HOSTS = env_list(
 )
 
 SITE_URL = os.environ.get("SITE_URL", "https://fizruk-fitness.ru").rstrip("/")
+YANDEX_METRIKA_COUNTER_ID = ""
 
 # settings.py
 CSRF_TRUSTED_ORIGINS = [
