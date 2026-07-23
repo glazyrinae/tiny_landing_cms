@@ -2,13 +2,10 @@ import logging
 
 
 from django.contrib import admin
-from django.utils.html import format_html
+from tiny_cms.admin_utils import ADMIN_IMAGE_PREVIEW_CSS, admin_image_preview
 from .models import AboutSection, AboutSectionWidget, AboutSectionImages, AboutSectionFeatures
 
 logger = logging.getLogger("about")
-
-# Constants
-THUMBNAIL_SIZE = (350, 200)
 
 class ImageInline(admin.StackedInline):
     model = AboutSectionImages
@@ -17,11 +14,13 @@ class ImageInline(admin.StackedInline):
     fields = ("src", "alt", "thumbnail_preview")
 
     def thumbnail_preview(self, obj):
-        if obj.thumbnail:
-            return format_html(
-                f'<img src="{obj.thumbnail.url}" width="{THUMBNAIL_SIZE[0]}" height="{THUMBNAIL_SIZE[1]}" />'
-            )
-        return "-"
+        return admin_image_preview(
+            getattr(obj, "thumbnail", None),
+            getattr(obj, "alt", ""),
+        )
+
+    class Media:
+        css = {"all": (ADMIN_IMAGE_PREVIEW_CSS,)}
 
 class AboutSectionFeaturesInline(admin.StackedInline):
     model = AboutSectionFeatures

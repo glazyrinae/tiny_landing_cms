@@ -1,0 +1,20 @@
+.admin-image-preview {
+    align-items: center;
+    background: var(--darkened-bg, #f8f8f8);
+    border: 1px solid var(--hairline-color, #ddd);
+    border-radius: 4px;
+    display: flex;
+    height: var(--preview-height, 200px);
+    justify-content: center;
+    overflow: hidden;
+    width: var(--preview-width, 350px);
+}
+
+.admin-image-preview img {
+    display: block;
+    height: auto;
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    width: auto;
+}
