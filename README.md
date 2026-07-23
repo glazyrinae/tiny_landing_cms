@@ -29,7 +29,6 @@ the Django admin panel.
 |-- nginx/                  # Production Nginx config
 |-- media/                  # Uploaded media files
 |-- logs/                   # Application logs
-|-- shared/                 # Shared files between services
 |-- docker-compose.yml      # Base Docker Compose config
 |-- docker-compose.local.yml
 |-- docker-compose.prod.yml
