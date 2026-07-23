@@ -1,6 +1,6 @@
 from django.test import TestCase, override_settings
 
-from .models import Landing
+from .models import CallbackRequest, Landing
 
 
 @override_settings(SITE_URL="https://example.com", ALLOWED_HOSTS=["testserver"])
@@ -46,3 +46,20 @@ class SeoTests(TestCase):
         )
         self.assertContains(response, 'property="og:type" content="website"')
         self.assertContains(response, 'type="application/ld+json"')
+
+
+@override_settings(ALLOWED_HOSTS=["testserver"])
+class CallbackRequestTests(TestCase):
+    def test_send_feedback_creates_callback_request(self):
+        response = self.client.post(
+            "/send-feedback/",
+            {
+                "name": "Тест",
+                "phone": "+7(999)999-99-99",
+                "message": "test",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertJSONEqual(response.content, {"status": "ok"})
+        self.assertEqual(CallbackRequest.objects.count(), 1)

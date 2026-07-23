@@ -7,7 +7,7 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="callbackForm" method="POST">
+                <form id="callbackForm" method="POST" action="{% url 'send_feedback' %}" novalidate>
                     {% csrf_token %}
                     <div class="mb-3">
                         <label for="name" class="form-label text-white-custom">Ваше имя</label>
@@ -59,8 +59,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Получаем CSRF-токен из meta-тега
     function getCSRFToken() {
-        const meta = document.querySelector("meta[name='csrf-token']");
-        return meta ? meta.getAttribute("content") : null;
+        const input = form.querySelector('[name=csrfmiddlewaretoken]');
+        if (input && input.value) return input.value;
+
+        const match = document.cookie.match(/(?:^|; )csrftoken=([^;]+)/);
+        return match ? decodeURIComponent(match[1]) : '';
     }
 
     // Функция проверки валидности имени
@@ -166,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Получаем CSRF-токен из мета-тега (обязательно!)
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const csrfToken = getCSRFToken();
         
         const formData = new FormData();
         formData.append('name', nameInput.value.trim());
@@ -178,16 +181,22 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.textContent = 'Отправка...';
 
         try {
-            const response = await fetch('/send-feedback/', {
+            const response = await fetch(form.action, {
                 method: 'POST',
-                body: formData  // ← FormData автоматически установит правильный Content-Type
+                body: formData,  // FormData автоматически установит правильный Content-Type
+                credentials: 'same-origin',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
             });
 
-            const result = await response.json();
+            const result = await response.json().catch(() => ({}));
 
             if (response.ok && result.status === 'ok') {
                 // Успех
-                const modal = bootstrap.Modal.getInstance(document.getElementById('callbackModal'));
+                const modalElement = document.getElementById('callbackModal');
+                const modal = bootstrap.Modal.getInstance(modalElement) || bootstrap.Modal.getOrCreateInstance(modalElement);
                 modal.hide();
                 alert('✅ Спасибо! Мы свяжемся с вами в ближайшее время.');
                 form.reset();
