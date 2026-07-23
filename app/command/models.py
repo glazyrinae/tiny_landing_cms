@@ -23,18 +23,18 @@ class CommandSection(models.Model):
         super().save(*args, **kwargs)
 
 class CommandSectionFeatures(models.Model):
-    title = models.CharField(max_length=100, blank=True,  verbose_name="Доп.информация")
-    name = models.CharField(max_length=100, blank=True,  verbose_name="имя")
-    status = models.CharField(max_length=100, blank=True,  verbose_name="должность")
+    title = models.CharField(max_length=255, blank=True,  verbose_name="Доп.информация")
+    name = models.CharField(max_length=255, blank=True,  verbose_name="имя")
+    status = models.CharField(max_length=255, blank=True,  verbose_name="должность")
     desc = models.TextField(max_length=500, blank=True,  verbose_name="описание")
-    social = models.CharField(max_length=100, blank=True,  verbose_name="контакты")
+    social = models.CharField(max_length=255, blank=True,  verbose_name="контакты")
     is_active = models.BooleanField(default=True, verbose_name="Видимость")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     section = models.ForeignKey(CommandSection, on_delete=models.CASCADE, related_name="features")
-    src = models.ImageField(blank=True)
-    thumbnail = models.ImageField(upload_to="%Y/%m/%d/thumbnails", blank=True, null=True)
-    alt = models.CharField(max_length=100, blank=True,  verbose_name="Описание картинки")
+    src = models.ImageField(blank=True, max_length=255)
+    thumbnail = models.ImageField(upload_to="%Y/%m/%d/thumbnails", blank=True, null=True, max_length=255)
+    alt = models.CharField(max_length=255, blank=True,  verbose_name="Описание картинки")
 
     class Meta:
         db_table = 'section_command_features'

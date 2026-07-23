@@ -1,4 +1,4 @@
-"""Signal handlers for about image management."""
+"""Signal handlers for command image management."""
 
 import logging
 import os
@@ -10,11 +10,12 @@ from uuid import uuid4
 
 from django.apps import apps
 from django.core.files.base import ContentFile
-from django.db.models.signals import post_delete, pre_save
+from django.db import transaction
+from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 from PIL import Image
 
-logger = logging.getLogger("about")
+logger = logging.getLogger("command")
 
 # Constants
 THUMBNAIL_SIZE = (300, 300)
@@ -66,6 +67,36 @@ def remove_file_if_exists(file_path: Optional[str]) -> None:
             logger.error(f"Error removing file {file_path}: {e}")
 
 
+def get_file_path(file_field) -> Optional[str]:
+    """Return the storage path for a file field when one is available."""
+    if not file_field:
+        return None
+    try:
+        return file_field.path
+    except (NotImplementedError, ValueError):
+        return None
+
+
+def queue_file_cleanup(instance, file_path: Optional[str]) -> None:
+    """Remember a file path to remove after the model save is committed."""
+    if not file_path:
+        return
+
+    pending_paths = getattr(instance, "_old_file_paths_to_delete", [])
+    if file_path not in pending_paths:
+        pending_paths.append(file_path)
+        instance._old_file_paths_to_delete = pending_paths
+
+
+def remove_file_on_commit(file_path: str) -> None:
+    """Remove a file only after the surrounding database transaction commits."""
+    def cleanup() -> None:
+        logger.info(f"Removing old file: {file_path}")
+        remove_file_if_exists(file_path)
+
+    transaction.on_commit(cleanup)
+
+
 def create_thumbnail(image_file, max_size: tuple = THUMBNAIL_SIZE) -> BytesIO:
     """
     Create a thumbnail from an image file.
@@ -114,31 +145,28 @@ def create_thumbnail(image_file, max_size: tuple = THUMBNAIL_SIZE) -> BytesIO:
 
 def cleanup_old_files(instance, old_instance) -> bool:
     """
-    Remove old image and thumbnail files when they are replaced.
+    Queue old image and thumbnail files for removal after a successful save.
 
     Args:
         instance: New model instance
         old_instance: Previous model instance
     """
-    logger.debug("Cleaning up old files")
+    logger.debug("Checking old files for deferred cleanup")
 
     if instance.src and old_instance.src and instance.src == old_instance.src:
-        logger.info(f"Old and New image are same: {old_instance.src.path}")
+        logger.info(f"Old and New image are same: {old_instance.src.name}")
         return False
-    
-    # Cleanup old main image
-    if instance.src and old_instance.src and instance.src != old_instance.src:
-        logger.info(f"Removing old image: {old_instance.src.path}")
-        remove_file_if_exists(old_instance.src.path)
 
-    # Cleanup old thumbnail
-    if (
-        instance.thumbnail
-        and old_instance.thumbnail
-        and instance.thumbnail != old_instance.thumbnail
-    ):
-        logger.info(f"Removing old thumbnail: {old_instance.thumbnail.path}")
-        remove_file_if_exists(old_instance.thumbnail.path)
+    # Defer cleanup of the old main image until the database transaction commits.
+    if instance.src and old_instance.src and instance.src != old_instance.src:
+        old_image_path = get_file_path(old_instance.src)
+        logger.debug(f"Queueing old image cleanup: {old_image_path}")
+        queue_file_cleanup(instance, old_image_path)
+
+        if old_instance.thumbnail:
+            old_thumbnail_path = get_file_path(old_instance.thumbnail)
+            logger.debug(f"Queueing old thumbnail cleanup: {old_thumbnail_path}")
+            queue_file_cleanup(instance, old_thumbnail_path)
     return True
 
 
@@ -148,7 +176,7 @@ def generate_thumbnail_on_save(sender, instance, **kwargs):
     Generate thumbnail and rename image before saving.
 
     This signal:
-    1. Removes old files when image is replaced
+    1. Queues old files for cleanup when image is replaced
     2. Generates a unique filename for the image
     3. Creates a thumbnail from the uploaded image
     4. Saves both with proper naming
@@ -176,10 +204,6 @@ def generate_thumbnail_on_save(sender, instance, **kwargs):
         # Create thumbnail
         thumb_io = create_thumbnail(instance.src, THUMBNAIL_SIZE)
 
-        # Remove old thumbnail if exists
-        if instance.thumbnail:
-            remove_file_if_exists(instance.thumbnail.path)
-
         # Save new thumbnail
         thumbnail_name = f"thumb_{Path(instance.src.name).name}"
         instance.thumbnail.save(
@@ -190,11 +214,21 @@ def generate_thumbnail_on_save(sender, instance, **kwargs):
         logger.info(f"Thumbnail saved: {thumbnail_name}")
 
     except Exception as e:
-        # Clean up instance if thumbnail generation fails
-        if instance.pk:
-            logger.warning("Deleting instance due to image processing failure")
-            instance.delete()
+        logger.error(f"Image processing error: {e}", exc_info=True)
         raise ValueError(f"Image processing error: {str(e)}") from e
+
+
+@receiver(post_save, sender=Images)
+def cleanup_old_files_after_save(sender, instance, **kwargs):
+    """Remove replaced files only after the model save transaction commits."""
+    old_file_paths = getattr(instance, "_old_file_paths_to_delete", [])
+    if not old_file_paths:
+        return
+
+    for file_path in old_file_paths:
+        remove_file_on_commit(file_path)
+
+    instance._old_file_paths_to_delete = []
 
 
 @receiver(post_delete, sender=Images)
@@ -209,6 +243,6 @@ def cleanup_files_on_delete(sender, instance, **kwargs):
     """
     if sender == Images:
         logger.info(f"Cleaning up files for deleted image (ID: {instance.pk})")
-        remove_file_if_exists(instance.src.path)
-        remove_file_if_exists(instance.thumbnail.path)
+        remove_file_if_exists(get_file_path(instance.src))
+        remove_file_if_exists(get_file_path(instance.thumbnail))
         logger.debug("File cleanup completed")
