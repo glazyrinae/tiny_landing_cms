@@ -3,6 +3,23 @@
         <div class="row align-items-center">
             <div class="col-md-6">
                 <p class="mb-0 text-white-custom">© {% now "Y" %} Фитнес-клуб "Физрук". Все права защищены.</p>
+                {% if yandex_metrika_counter_id %}
+                    <div class="yandex-metrika-informer mt-3">
+                        <!-- Yandex.Metrika informer -->
+                        <a href="https://metrika.yandex.ru/stat/?id={{ yandex_metrika_counter_id }}&amp;from=informer"
+                           target="_blank"
+                           rel="nofollow noopener">
+                            <img src="https://informer.yandex.ru/informer/{{ yandex_metrika_counter_id }}/3_1_FFFFFFFF_EFEFEFFF_0_pageviews"
+                                 style="width:88px; height:31px; border:0;"
+                                 alt="Яндекс.Метрика"
+                                 title="Яндекс.Метрика: данные за сегодня (просмотры, визиты и уникальные посетители)"
+                                 class="ym-advanced-informer"
+                                 data-cid="{{ yandex_metrika_counter_id }}"
+                                 data-lang="ru">
+                        </a>
+                        <!-- /Yandex.Metrika informer -->
+                    </div>
+                {% endif %}
             </div>
             <div class="col-md-6 text-md-end">
                 <button class="btn btn-primary-custom big-call-button" type="button" data-bs-toggle="modal" data-bs-target="#callbackModal">

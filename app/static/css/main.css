@@ -209,6 +209,14 @@ footer {
     background-color: var(--dark-light);
 }
 
+.yandex-metrika-informer {
+    line-height: 0;
+}
+
+.yandex-metrika-informer img {
+    display: inline-block;
+}
+
 .social-icon {
     display: inline-flex;
     align-items: center;
