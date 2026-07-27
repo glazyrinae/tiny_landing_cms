@@ -1,5 +1,12 @@
 from django.test import TestCase, override_settings
 
+from about.models import AboutSection
+from address.models import AddressSection
+from command.models import CommandSection
+from price.models import PriceSection
+from service.models import ServiceSection
+from settings.context_processors import get_menu_items
+
 from .models import CallbackRequest, Landing
 
 
@@ -63,3 +70,44 @@ class CallbackRequestTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(response.content, {"status": "ok"})
         self.assertEqual(CallbackRequest.objects.count(), 1)
+
+
+class MenuItemsTests(TestCase):
+    def test_inactive_sections_are_excluded_from_menu(self):
+        AboutSection.objects.create(
+            title="About",
+            desc="About description",
+            slug="about",
+            is_active=True,
+        )
+        ServiceSection.objects.create(
+            title="Services",
+            desc="Services description",
+            slug="services",
+            is_active=False,
+        )
+        CommandSection.objects.create(
+            title="Team",
+            desc="Team description",
+            slug="trainers",
+            is_active=True,
+        )
+        PriceSection.objects.create(
+            title="Prices",
+            desc="Prices description",
+            slug="pricing",
+            is_active=True,
+        )
+        AddressSection.objects.create(
+            address="Address",
+            phone="+79990000000",
+            hours_work="Every day",
+            slug="contact",
+            geo_tag="55.75,37.61",
+        )
+
+        menu_items = get_menu_items()
+        hrefs = [item["href"] for item in menu_items]
+
+        self.assertEqual(hrefs, ["#about", "#trainers", "#pricing", "#contact"])
+        self.assertNotIn("#services", hrefs)
