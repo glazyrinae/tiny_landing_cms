@@ -53,7 +53,12 @@
             <script type="application/ld+json">{{ structured_data|safe }}</script>
         {% endif %}
         {% if turnstile_site_key %}
-            <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+            <script>
+                window.onTurnstileApiReady = function() {
+                    document.dispatchEvent(new Event('turnstile:ready'));
+                };
+            </script>
+            <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onTurnstileApiReady" defer></script>
         {% endif %}
         {% block css %}
         {% endblock %}

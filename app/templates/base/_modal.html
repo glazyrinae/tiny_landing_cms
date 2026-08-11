@@ -44,7 +44,7 @@
 
                     {% if turnstile_site_key %}
                         <div class="mb-3">
-                            <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}" data-theme="dark"></div>
+                            <div id="callbackTurnstile" data-sitekey="{{ turnstile_site_key }}"></div>
                         </div>
                     {% endif %}
                     
@@ -62,6 +62,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const privacyCheckbox = document.getElementById('privacyPolicy');
     const submitBtn = document.getElementById('submitBtn');
     const form = document.getElementById('callbackForm');
+    const modalElement = document.getElementById('callbackModal');
+    const turnstileContainer = document.getElementById('callbackTurnstile');
+    const isTurnstileEnabled = Boolean(turnstileContainer);
+    let turnstileWidgetId = null;
+    let isTurnstileSolved = !isTurnstileEnabled;
     
     // Получаем CSRF-токен из meta-тега
     function getCSRFToken() {
@@ -88,14 +93,66 @@ document.addEventListener('DOMContentLoaded', function() {
     function validatePrivacy() {
         return privacyCheckbox.checked;
     }
+
+    function markTurnstileSolved(isSolved) {
+        isTurnstileSolved = !isTurnstileEnabled || isSolved;
+        updateSubmitButton();
+    }
+
+    function renderTurnstile() {
+        if (!isTurnstileEnabled || !window.turnstile || turnstileWidgetId !== null) {
+            return;
+        }
+
+        turnstileWidgetId = window.turnstile.render(turnstileContainer, {
+            sitekey: turnstileContainer.dataset.sitekey,
+            theme: 'dark',
+            size: 'flexible',
+            callback: function() {
+                markTurnstileSolved(true);
+            },
+            'expired-callback': function() {
+                markTurnstileSolved(false);
+            },
+            'error-callback': function() {
+                markTurnstileSolved(false);
+            },
+        });
+    }
+
+    function resetTurnstile() {
+        if (!isTurnstileEnabled) {
+            return;
+        }
+
+        markTurnstileSolved(false);
+
+        if (window.turnstile && turnstileWidgetId !== null) {
+            window.turnstile.reset(turnstileWidgetId);
+        }
+    }
+
+    function prepareTurnstile() {
+        if (!isTurnstileEnabled || !window.turnstile) {
+            return;
+        }
+
+        if (turnstileWidgetId === null) {
+            markTurnstileSolved(false);
+            renderTurnstile();
+        } else {
+            resetTurnstile();
+        }
+    }
     
     // Функция обновления состояния кнопки
     function updateSubmitButton() {
         const isNameValid = validateName();
         const isPhoneValid = validatePhone();
         const isPrivacyChecked = validatePrivacy();
+        const isCaptchaValid = isTurnstileSolved;
         
-        if (isNameValid && isPhoneValid && isPrivacyChecked) {
+        if (isNameValid && isPhoneValid && isPrivacyChecked && isCaptchaValid) {
             submitBtn.disabled = false;
             submitBtn.classList.remove('btn-disabled');
         } else {
@@ -166,11 +223,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const isNameValid = validateName();
         const isPhoneValid = validatePhone();
         const isPrivacyChecked = validatePrivacy();
+        const isCaptchaValid = isTurnstileSolved;
         
-        if (!isNameValid || !isPhoneValid || !isPrivacyChecked) {
+        if (!isNameValid || !isPhoneValid || !isPrivacyChecked || !isCaptchaValid) {
             validateField(nameInput, isNameValid);
             validateField(phoneInput, isPhoneValid);
             validatePrivacyField(isPrivacyChecked);
+            if (!isCaptchaValid) alert('Подтвердите, что вы не робот');
             return;
         }
         
@@ -206,31 +265,39 @@ document.addEventListener('DOMContentLoaded', function() {
                 modal.hide();
                 alert('✅ Спасибо! Мы свяжемся с вами в ближайшее время.');
                 form.reset();
-                if (window.turnstile) window.turnstile.reset();
+                resetTurnstile();
             } else {
                 // Ошибка от сервера
                 const errorMsg = result.error || 'Не удалось отправить заявку. Попробуйте позже.';
                 alert('❌ Ошибка: ' + errorMsg);
-                if (window.turnstile) window.turnstile.reset();
+                resetTurnstile();
             }
         } catch (error) {
             // Ошибка сети
             alert('❌ Ошибка подключения. Проверьте интернет и попробуйте снова.');
-            if (window.turnstile) window.turnstile.reset();
+            resetTurnstile();
         } finally {
-            submitBtn.disabled = false;
             submitBtn.textContent = 'Заказать звонок';
+            updateSubmitButton();
         }
     });
     
     // Сброс при открытии модалки
-    document.getElementById('callbackModal').addEventListener('show.bs.modal', function() {
+    modalElement.addEventListener('show.bs.modal', function() {
         form.reset();
         submitBtn.disabled = true;
         nameInput.classList.remove('is-valid', 'is-invalid');
         phoneInput.classList.remove('is-valid', 'is-invalid');
         privacyCheckbox.classList.remove('is-valid', 'is-invalid');
-        if (window.turnstile) window.turnstile.reset();
+        markTurnstileSolved(false);
+    });
+
+    modalElement.addEventListener('shown.bs.modal', prepareTurnstile);
+
+    document.addEventListener('turnstile:ready', function() {
+        if (modalElement.classList.contains('show')) {
+            prepareTurnstile();
+        }
     });
 });
 </script>

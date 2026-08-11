@@ -56,6 +56,20 @@ class SeoTests(TestCase):
         self.assertContains(response, 'property="og:type" content="website"')
         self.assertContains(response, 'type="application/ld+json"')
 
+    @override_settings(TURNSTILE_SITE_KEY="site-key")
+    def test_home_page_renders_turnstile_explicitly_when_enabled(self):
+        Landing.objects.create(
+            title="Физрук",
+            desc="Современный фитнес-клуб с персональными тренировками и абонементами.",
+            footer="Фитнес-клуб Физрук",
+        )
+
+        response = self.client.get("/")
+
+        self.assertContains(response, "api.js?render=explicit&onload=onTurnstileApiReady")
+        self.assertContains(response, 'id="callbackTurnstile" data-sitekey="site-key"')
+        self.assertNotContains(response, 'class="cf-turnstile"')
+
 
 @override_settings(ALLOWED_HOSTS=["testserver"], TURNSTILE_SECRET_KEY="")
 class CallbackRequestTests(TestCase):
