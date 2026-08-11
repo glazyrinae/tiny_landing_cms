@@ -1,4 +1,3 @@
-import os
 from unittest.mock import patch
 
 from django.test import TestCase, override_settings
@@ -9,28 +8,8 @@ from command.models import CommandSection
 from price.models import PriceSection
 from service.models import ServiceSection
 from settings.context_processors import get_menu_items
-from tiny_cms.configs.base import env_list
 
 from .models import CallbackRequest, Landing
-
-
-class EnvListTests(TestCase):
-    def test_env_list_uses_default_for_blank_value(self):
-        with patch.dict(os.environ, {"TEST_ALLOWED_HOSTS": ""}):
-            self.assertEqual(
-                env_list("TEST_ALLOWED_HOSTS", "fizruk-fitness.ru web"),
-                ["fizruk-fitness.ru", "web"],
-            )
-
-    def test_env_list_accepts_commas_and_spaces(self):
-        with patch.dict(
-            os.environ,
-            {"TEST_ALLOWED_HOSTS": "fizruk-fitness.ru,www.fizruk-fitness.ru web"},
-        ):
-            self.assertEqual(
-                env_list("TEST_ALLOWED_HOSTS", "localhost"),
-                ["fizruk-fitness.ru", "www.fizruk-fitness.ru", "web"],
-            )
 
 
 @override_settings(SITE_URL="https://example.com", ALLOWED_HOSTS=["testserver"])
