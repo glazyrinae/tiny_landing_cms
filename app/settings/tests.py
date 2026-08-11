@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.test import TestCase, override_settings
 
 from about.models import AboutSection
@@ -55,7 +57,7 @@ class SeoTests(TestCase):
         self.assertContains(response, 'type="application/ld+json"')
 
 
-@override_settings(ALLOWED_HOSTS=["testserver"])
+@override_settings(ALLOWED_HOSTS=["testserver"], TURNSTILE_SECRET_KEY="")
 class CallbackRequestTests(TestCase):
     def test_send_feedback_creates_callback_request(self):
         response = self.client.post(
@@ -70,6 +72,38 @@ class CallbackRequestTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(response.content, {"status": "ok"})
         self.assertEqual(CallbackRequest.objects.count(), 1)
+
+    @override_settings(TURNSTILE_SECRET_KEY="secret")
+    def test_send_feedback_requires_turnstile_token_when_enabled(self):
+        response = self.client.post(
+            "/send-feedback/",
+            {
+                "name": "Тест",
+                "phone": "+7(999)999-99-99",
+                "message": "test",
+            },
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(CallbackRequest.objects.count(), 0)
+
+    @override_settings(TURNSTILE_SECRET_KEY="secret")
+    @patch("tiny_cms.views._verify_turnstile_token", return_value=True)
+    def test_send_feedback_creates_request_after_turnstile_check(self, verify_mock):
+        response = self.client.post(
+            "/send-feedback/",
+            {
+                "name": "Тест",
+                "phone": "+7(999)999-99-99",
+                "message": "test",
+                "cf-turnstile-response": "token",
+            },
+            REMOTE_ADDR="203.0.113.10",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(CallbackRequest.objects.count(), 1)
+        verify_mock.assert_called_once_with("token", "203.0.113.10")
 
 
 class MenuItemsTests(TestCase):

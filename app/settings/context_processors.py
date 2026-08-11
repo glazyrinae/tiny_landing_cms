@@ -91,6 +91,7 @@ def global_context(request):
         "menu_items": menu_items,
         "structured_data": structured_data,
         "yandex_metrika_counter_id": settings.YANDEX_METRIKA_COUNTER_ID,
+        "turnstile_site_key": settings.TURNSTILE_SITE_KEY,
         **seo_context,
     }
 

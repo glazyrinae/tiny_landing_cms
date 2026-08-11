@@ -50,6 +50,8 @@ ALLOWED_HOSTS = env_list(
 
 SITE_URL = os.environ.get("SITE_URL", "https://fizruk-fitness.ru").rstrip("/")
 YANDEX_METRIKA_COUNTER_ID = ""
+TURNSTILE_SITE_KEY = os.environ.get("TURNSTILE_SITE_KEY", "")
+TURNSTILE_SECRET_KEY = os.environ.get("TURNSTILE_SECRET_KEY", "")
 
 # settings.py
 CSRF_TRUSTED_ORIGINS = [

@@ -41,6 +41,12 @@
                             <div class="invalid-feedback">Необходимо ваше согласие для обработки данных</div>
                         </div>
                     </div>
+
+                    {% if turnstile_site_key %}
+                        <div class="mb-3">
+                            <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}" data-theme="dark"></div>
+                        </div>
+                    {% endif %}
                     
                     <button type="submit" class="btn btn-primary-custom w-100 py-2 fw-bold" id="submitBtn" disabled>Заказать звонок</button>
                 </form>
@@ -171,11 +177,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Получаем CSRF-токен из мета-тега (обязательно!)
         const csrfToken = getCSRFToken();
         
-        const formData = new FormData();
-        formData.append('name', nameInput.value.trim());
-        formData.append('phone', phoneInput.value);
-        formData.append('message', document.getElementById('message').value.trim());
-        formData.append('csrfmiddlewaretoken', csrfToken);
+        const formData = new FormData(form);
+        formData.set('name', nameInput.value.trim());
+        formData.set('phone', phoneInput.value);
+        formData.set('message', document.getElementById('message').value.trim());
+        formData.set('csrfmiddlewaretoken', csrfToken);
 
         submitBtn.disabled = true;
         submitBtn.textContent = 'Отправка...';
@@ -200,14 +206,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 modal.hide();
                 alert('✅ Спасибо! Мы свяжемся с вами в ближайшее время.');
                 form.reset();
+                if (window.turnstile) window.turnstile.reset();
             } else {
                 // Ошибка от сервера
                 const errorMsg = result.error || 'Не удалось отправить заявку. Попробуйте позже.';
                 alert('❌ Ошибка: ' + errorMsg);
+                if (window.turnstile) window.turnstile.reset();
             }
         } catch (error) {
             // Ошибка сети
             alert('❌ Ошибка подключения. Проверьте интернет и попробуйте снова.');
+            if (window.turnstile) window.turnstile.reset();
         } finally {
             submitBtn.disabled = false;
             submitBtn.textContent = 'Заказать звонок';
@@ -221,6 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
         nameInput.classList.remove('is-valid', 'is-invalid');
         phoneInput.classList.remove('is-valid', 'is-invalid');
         privacyCheckbox.classList.remove('is-valid', 'is-invalid');
+        if (window.turnstile) window.turnstile.reset();
     });
 });
 </script>

@@ -49,6 +49,14 @@ Local development uses `.env.dev`.
 
 Production uses `.env.prod`.
 
+Callback spam protection uses Cloudflare Turnstile. Set these variables in the
+active environment file before starting the site:
+
+```bash
+TURNSTILE_SITE_KEY=your-public-site-key
+TURNSTILE_SECRET_KEY=your-private-secret-key
+```
+
 ## Local Development
 
 Start only the services required for the site:
@@ -86,13 +94,25 @@ docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.local
 Use the helper script to start all enabled development services:
 
 ```bash
-./upgrade.sh start dev
+./upgrade.sh up dev
 ```
 
 Stop development services:
 
 ```bash
 ./upgrade.sh stop dev
+```
+
+Rebuild development images without cache:
+
+```bash
+./upgrade.sh build dev
+```
+
+Show development containers:
+
+```bash
+./upgrade.sh ps dev
 ```
 
 In the current compose file, the enabled development services are `db` and
@@ -138,7 +158,7 @@ Nginx config, and the external `traefik-public` Docker network.
 Start production services:
 
 ```bash
-./upgrade.sh start prod
+./upgrade.sh up prod
 ```
 
 Stop production services:
@@ -147,11 +167,16 @@ Stop production services:
 ./upgrade.sh stop prod
 ```
 
-Certificate helpers:
+Rebuild production images without cache:
 
 ```bash
-./upgrade.sh renew prod
-./upgrade.sh renew-dns prod
+./upgrade.sh build prod
+```
+
+Show production containers:
+
+```bash
+./upgrade.sh ps prod
 ```
 
 ## Common Issues
