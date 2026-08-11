@@ -23,7 +23,11 @@ def env_bool(name, default=False):
 
 
 def env_list(name, default):
-    value = os.environ.get(name, default)
+    value = os.environ.get(name)
+    if not value or not value.strip():
+        value = default
+
+    value = value.replace(",", " ")
     return [
         item.strip().strip('"').strip("'")
         for item in value.split()
