@@ -21,8 +21,6 @@ services:
   db:
     image: postgres:15
     user: "${APP_UID:-1000}:${APP_GID:-1000}"
-    ports:
-      - "5433:5432"
     volumes:
       - ./deploy/db_data/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
       - ./deploy/db_data:/var/lib/postgresql/data
