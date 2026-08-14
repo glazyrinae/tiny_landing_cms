@@ -24,6 +24,10 @@ load_env() {
         set +a
     else
         echo "Файл $env_file не найден" >&2
+        if [[ -f "$env_file.example" ]]; then
+            echo "Создайте его из шаблона и заполните значения:" >&2
+            echo "  cp $env_file.example $env_file" >&2
+        fi
         exit 1
     fi
 }

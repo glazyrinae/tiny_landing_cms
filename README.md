@@ -45,9 +45,23 @@ Legacy `docker-compose` v1 can fail on newer Docker versions with
 
 ## Environment Files
 
-Local development uses `.env.dev`.
+Environment files with real values are ignored by Git. Create them from the
+checked-in examples before starting services.
 
-Production uses `.env.prod`.
+Local development uses `.env.dev`:
+
+```bash
+test -f .env.dev || cp .env.dev.example .env.dev
+```
+
+Production uses `.env.prod`:
+
+```bash
+test -f .env.prod || cp .env.prod.example .env.prod
+```
+
+Edit `.env.prod` on the server and keep it out of Git.
+Production compose does not use `.env.dev`.
 
 Callback spam protection uses Cloudflare Turnstile. Set these variables in the
 active environment file before starting the site:
