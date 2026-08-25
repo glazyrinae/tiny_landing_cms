@@ -12,21 +12,29 @@ services:
       - ./logs:/app/logs
     command: python manage.py runserver 0.0.0.0:8000
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - app_network
 
   db:
     image: postgres:15
     user: "${APP_UID:-1000}:${APP_GID:-1000}"
+    restart: unless-stopped
+    stop_grace_period: 60s
     volumes:
-      - ./deploy/db_data/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
       - ./deploy/db_data:/var/lib/postgresql/data
       - ./deploy/db_backup:/backup
     environment:
-      POSTGRES_USER: ${SQL_USER}
-      POSTGRES_PASSWORD: ${SQL_PASSWORD}
-      POSTGRES_DB: ${SQL_DATABASE}
+      POSTGRES_USER: ${SQL_USER:?SQL_USER is not set. Start via ./upgrade.sh up dev|prod}
+      POSTGRES_PASSWORD: ${SQL_PASSWORD:?SQL_PASSWORD is not set. Start via ./upgrade.sh up dev|prod}
+      POSTGRES_DB: ${SQL_DATABASE:?SQL_DATABASE is not set. Start via ./upgrade.sh up dev|prod}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     networks:
       - app_network
 

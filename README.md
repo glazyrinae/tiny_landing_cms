@@ -193,6 +193,33 @@ Show production containers:
 ./upgrade.sh ps prod
 ```
 
+A bare `docker compose ...` in the project directory loads only
+`docker-compose.yml` and no env file. It would start development defaults with
+empty database credentials and recreate the running containers, so Compose is
+configured to fail instead. Always pass the production files and env file:
+
+```bash
+docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml ps
+docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml logs db
+```
+
+To make bare `docker compose` commands safe on the server, pin the file list
+and the env file in a root `.env` (it is ignored by Git):
+
+```bash
+cat > .env <<'EOF'
+COMPOSE_FILE=docker-compose.yml:docker-compose.prod.yml
+COMPOSE_ENV_FILES=.env.prod
+EOF
+```
+
+`db` runs as `APP_UID:APP_GID` from the env file, so `deploy/db_data` must be
+owned by that user or PostgreSQL will not start:
+
+```bash
+sudo chown -R "$APP_UID:$APP_GID" deploy/db_data deploy/db_backup
+```
+
 ## Common Issues
 
 Port `8000` is already in use.
@@ -214,4 +241,15 @@ Use the project env file with Compose commands:
 
 ```bash
 docker compose --env-file .env.dev -f docker-compose.yml -f docker-compose.local.yml logs -f web
+```
+
+The database container is down while the site is up.
+
+`db` restarts with `unless-stopped` and `web` waits for its health check, so
+this should not survive a reboot. Check why it stopped:
+
+```bash
+docker compose --env-file .env.prod -f docker-compose.yml -f docker-compose.prod.yml ps
+docker inspect "$(docker ps -aqf name=db)" --format '{{.State.ExitCode}} OOMKilled={{.State.OOMKilled}} {{.State.FinishedAt}}'
+dmesg -T | grep -i -E 'oom|killed process'
 ```
